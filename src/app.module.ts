@@ -1,28 +1,31 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Post } from './post/post.entity';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 import { PostModule } from './post/post.module';
-import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
+import { ExceptionsLoggerFilter } from './utils/exceptionLogger.filter';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'admin',
-      database: 'nestjs-project',
-      synchronize: true,
-      entities: [Post, User]
-    }),
+    DatabaseModule,
     PostModule,
-    UserModule
+    UserModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true
+    })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: ExceptionsLoggerFilter,
+    }
+  ],
 })
 export class AppModule {}
