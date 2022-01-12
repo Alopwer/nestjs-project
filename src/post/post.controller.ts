@@ -1,29 +1,42 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "src/auth/guard/jwtAuth.guard";
+import { RequestWithUser } from "src/auth/interface/requestWithUser.interface";
 import { CreatePostDto } from "./dto/createPost.dto";
 import { UpdatePostDto } from "./dto/updatePost.dto";
+import { CanCreatePostGuard } from "./guard/canCreatePost.guard";
+import { IsOwnPostGuard } from "./guard/isOwnPost.guard";
 import { PostService } from "./post.service";
 
+@UseGuards(JwtAuthGuard)
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
+  @Get(':id')
+  async getById(@Param('id') id: string) {
+    return await this.postService.getById(id);
+  }
+
   @Get()
-  getAll() {
-    return this.postService.getAll();
+  async getAll() {
+    return await this.postService.getAll();
   }
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  @UseGuards(CanCreatePostGuard)
+  async create(@Req() req: RequestWithUser, @Body() createPostDto: CreatePostDto) {
+    return await this.postService.create(req.user.id, createPostDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    this.postService.update(id, updatePostDto);
+  @UseGuards(IsOwnPostGuard)
+  async update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+    return await this.postService.update(id, updatePostDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    this.postService.delete(id);
+  @UseGuards(IsOwnPostGuard)
+  async delete(@Param('id') id: string) {
+    return await this.postService.delete(id);
   }
 }

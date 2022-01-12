@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { BadRequestException, CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserService } from "../../user/user.service";
 import { LogInDto } from "../dto/logIn.dto";
 
@@ -13,6 +13,9 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const { email, password: enteredPwd } = request.body as LogInDto;
+    if (!(email || enteredPwd)) {
+      throw new BadRequestException();
+    }
     const user = await this.userService.getByEmail(email);
     const passwordsAreEqual = await this.userService.checkPassword(enteredPwd, user.password)
     request.user = user;

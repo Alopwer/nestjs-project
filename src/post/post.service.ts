@@ -1,30 +1,44 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { CreatePostDto } from "./dto/createPost.dto";
 import { UpdatePostDto } from "./dto/updatePost.dto";
 import { Post } from "./post.entity";
+import { PostRepository } from "./post.repository";
 
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(Post)
-    private readonly postRepository: Repository<Post>
+    private readonly postRepository: PostRepository
   ) {}
 
-  getAll(): Promise<Post[]> {
-    return this.postRepository.find();
+  async getById(id: string) {
+    const post = await this.postRepository.findOne({ id });
+    if (post) {
+      return post;
+    }
+    throw new HttpException('Post doesn\'t exist', HttpStatus.NOT_FOUND);
   }
 
-  create(createPostDto: CreatePostDto) {
-    return this.postRepository.save(createPostDto)
+  async getAll(): Promise<Post[]> {
+    return await this.postRepository.find({ relations: ['author'] });
   }
 
-  update(id: string, updatePostDto: UpdatePostDto) {
-    this.postRepository.update(id, updatePostDto)
+  async create(authorId: string, createPostDto: CreatePostDto) {
+    const postData = {
+      ...createPostDto,
+      authorId
+    }
+    const newPost = this.postRepository.create(postData);
+    await this.postRepository.save(postData);
+    return newPost;
   }
 
-  delete(id: string) {
-    this.postRepository.delete(id);
+  async update(id: string, updatePostDto: UpdatePostDto) {
+    await this.postRepository.update(id, updatePostDto)
+    return await this.postRepository.findOne({ id })
+  }
+
+  async delete(id: string) {
+    await this.postRepository.delete(id);
+    return { id };
   }
 }

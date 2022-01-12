@@ -1,9 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateUserDto } from "./dto/createUserDto";
+import { CreateUserDto } from "./dto/createUser.dto";
 import { User } from "./user.entity";
 import * as bcrypt from 'bcrypt';
+import { UpdateUserSubscriptionDto } from "./dto/updateUserSubscription.dto";
+import { Subscription } from "src/subscription/enum/subscription.enum";
 
 @Injectable()
 export class UserService {
@@ -13,7 +15,10 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const newUser = await this.userRepository.create(createUserDto);
+    const newUser = this.userRepository.create({
+      ...createUserDto,
+      subscription: Subscription.Free
+    });
     await this.userRepository.save(newUser);
     return newUser;
   }
@@ -37,8 +42,14 @@ export class UserService {
   async checkPassword(enteredPwd: string, userPwd: string) {
     const passwordsAreEqual = await bcrypt.compare(enteredPwd, userPwd)
     if (!passwordsAreEqual) {
-      throw new HttpException('Wrong credentials', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
     return passwordsAreEqual;
+  }
+
+  async updateSubscription(userId: string, updateSubsciptionDto: UpdateUserSubscriptionDto) {
+    // TODO: add payment validation
+    await this.userRepository.update(userId, updateSubsciptionDto);
+    return await this.userRepository.findOne(userId);
   }
 }

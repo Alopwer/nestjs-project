@@ -11,8 +11,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() registrationData: RegisterDto) {
-    return this.authService.register(registrationData)
+  async register(@Body() registrationData: RegisterDto) {
+    return await this.authService.register(registrationData)
   }
 
   @Post('log-in')
@@ -20,7 +20,7 @@ export class AuthController {
   logIn(@Req() request: RequestWithUser) {
     const { user } = request;
     const cookie = this.authService.getCookieWithJwtToken(user.id);
-    request.res.setHeader('Set-Header', cookie);
+    request.res.setHeader('Set-Cookie', cookie);
     return user;
   }
 

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "../../user/user.service";
 import { DecodedToken } from "../interface/decodedToken.interface";
@@ -14,13 +14,14 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(
     context: ExecutionContext
   ): Promise<boolean> {
+    // TODO: check refresh token
     const request = context.switchToHttp().getRequest() as RequestWithUser;
     const jwtToken = request.cookies.Authentication;
     let decodedToken: DecodedToken;
     try {
       decodedToken = await this.jwtService.verifyAsync(jwtToken);
     } catch {
-      throw new HttpException('Token is wrong or has expired', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
     const { userId } = decodedToken;
     const user = await this.userService.getById(userId);
