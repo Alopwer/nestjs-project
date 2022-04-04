@@ -4,8 +4,6 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { User } from "./user.entity";
 import * as bcrypt from 'bcrypt';
-import { UpdateUserSubscriptionDto } from "./dto/updateUserSubscription.dto";
-import { Subscription } from "src/subscription/enum/subscription.enum";
 
 @Injectable()
 export class UserService {
@@ -14,16 +12,15 @@ export class UserService {
     private readonly userRepository: Repository<User>
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create({
-      ...createUserDto,
-      subscription: Subscription.Free
+      ...createUserDto
     });
     await this.userRepository.save(newUser);
     return newUser;
   }
 
-  async getByEmail(email: string) {
+  async getUserByEmail(email: string) {
     const user = await this.userRepository.findOne({ email });
     if (user) {
       return user;
@@ -31,7 +28,7 @@ export class UserService {
     throw new HttpException('User with this email does not exist', HttpStatus.NOT_FOUND);
   }
 
-  async getById(id: string) {
+  async getUserById(id: string) {
     const user = await this.userRepository.findOne({ id });
     if (user) {
       return user;
@@ -45,11 +42,5 @@ export class UserService {
       throw new UnauthorizedException();
     }
     return passwordsAreEqual;
-  }
-
-  async updateSubscription(userId: string, updateSubsciptionDto: UpdateUserSubscriptionDto) {
-    // TODO: add payment validation
-    await this.userRepository.update(userId, updateSubsciptionDto);
-    return await this.userRepository.findOne(userId);
   }
 }

@@ -1,9 +1,6 @@
 import { IsString } from "class-validator";
 
-export class CreatePostDto {
+export class CreateWorkspaceDto {
   @IsString()
   title: string;
-
-  @IsString()
-  content: string;
 }

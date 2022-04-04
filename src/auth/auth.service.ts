@@ -18,7 +18,7 @@ export class AuthService {
   async register(registrationData: RegisterDto) {
     const hashedPassword = await this.sharedService.hashPassword(registrationData.password)
     try {
-      const createdUser = this.userService.create({
+      const createdUser = this.userService.createUser({
         ...registrationData,
         password: hashedPassword
       });
