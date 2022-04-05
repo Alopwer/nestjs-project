@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/createUser.dto";
 import { User } from "./user.entity";
 import * as bcrypt from 'bcrypt';
+import { DecodedToken } from "src/auth/interface/decodedToken.interface";
 
 @Injectable()
 export class UserService {
@@ -42,5 +43,9 @@ export class UserService {
       throw new UnauthorizedException();
     }
     return passwordsAreEqual;
+  }
+
+  async getUserFromToken(decodedToken: DecodedToken) {
+    return await this.getUserById(decodedToken.userId);
   }
 }

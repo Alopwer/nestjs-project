@@ -1,10 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { RegisterDto } from "./dto/register.dto";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "../user/user.service";
 import { TokenPayload } from "./interface/tokenPayload.interface";
 import { SharedService } from "../shared/shared.service";
 import { ConfigService } from "@nestjs/config";
+import { User } from "src/user/user.entity";
+import { VerifyToken } from "./interface/verifyToken.interface";
+import { DecodedToken } from "./interface/decodedToken.interface";
 
 @Injectable()
 export class AuthService {
@@ -28,13 +31,46 @@ export class AuthService {
     }
   }
 
-  public getCookieWithJwtToken(userId: string) {
+  getCookieWithJwtTokens(userId: string) {
     const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`;
+    const accessToken = this.getAccessTokenCookie(payload);
+    const refreshToken = this.getRefreshTokenCookie(payload);
+    return {
+      accessToken,
+      refreshToken
+    }
   }
 
-  public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  getAccessTokenCookie(payload: TokenPayload) {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: +this.configService.get('JWT_EXPIRATION_TIME')
+    })
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`
+  }
+
+  getRefreshTokenCookie(payload: TokenPayload) {
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+      expiresIn: +this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME')
+    })
+    return `RefreshToken=${refreshToken}; HttpOnly; Path=/auth/refresh-token; Max-Age=${this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME')}`
+  }
+
+  getCookieForLogOut() {
+    return {
+      accessToken: `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+      refreshToken: `RefreshToken=; HttpOnly; Path=/auth/refresh-token; Max-Age=0`
+    }
+  }
+
+  async verifyToken({ token, tokenType }: VerifyToken): Promise<DecodedToken> {
+    let decodedToken: DecodedToken;
+    try {
+      decodedToken = await this.jwtService.verifyAsync(token, { secret: this.configService.get(tokenType) });
+    } catch {
+      throw new UnauthorizedException();
+    }
+    return decodedToken;
   }
 }
