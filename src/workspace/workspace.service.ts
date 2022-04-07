@@ -1,6 +1,5 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { CreateWorkspaceDto } from "./dto/createWorkspaceDto";
 import { UpdateWorkspaceDto } from "./dto/updateWorkspaceDto";
@@ -17,8 +16,8 @@ export class WorkspaceService {
     return await this.workspaceRepository.find({ ownerId });
   }
 
-  async createWorkspace(owner: User, createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
-    const newWorkspace = this.workspaceRepository.create({ ...createWorkspaceDto, owner });
+  async createWorkspace(ownerId: string, createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
+    const newWorkspace = this.workspaceRepository.create({ ...createWorkspaceDto, ownerId });
     await this.workspaceRepository.save(newWorkspace);
     return newWorkspace;
   }
@@ -35,6 +34,9 @@ export class WorkspaceService {
 
   async checkOwner(userId: string, workspaceId: string): Promise<boolean> {
     const workspace = await this.workspaceRepository.findOne(workspaceId);
+    if (!workspace)  {
+      throw new NotFoundException();
+    }
     return workspace.ownerId === userId;
   }
 }

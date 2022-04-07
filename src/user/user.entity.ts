@@ -16,7 +16,4 @@ export class User {
   @Column()
   @Exclude()
   password: string;
-
-  @OneToMany(() => Workspace, (workspace) => workspace.owner)
-  workspaces: Workspace[];
 }

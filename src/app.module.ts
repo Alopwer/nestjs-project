@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { CardModule } from './card/card.module';
 import { CoreModule } from './core/core.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
@@ -21,7 +22,8 @@ import { WorkspaceModule } from './workspace/workspace.module';
     UserModule,
     AuthModule,
     CoreModule,
-    WorkspaceModule
+    WorkspaceModule,
+    CardModule
   ],
   controllers: [AppController],
   providers: [
