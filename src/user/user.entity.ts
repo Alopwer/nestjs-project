@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Workspace } from "src/workspace/workspace.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
