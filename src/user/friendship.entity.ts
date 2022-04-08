@@ -10,7 +10,7 @@ export class FriendshipStatus {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   requester: string;
 
-  @Column()
+  @PrimaryColumn()
   addresseeId: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
