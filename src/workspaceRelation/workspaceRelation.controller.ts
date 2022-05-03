@@ -49,7 +49,7 @@ export class WorkspaceRelationController {
   }
 
   @Put(':id')
-  async acceptCoworkerRelationRequest(
+  async acceptWorkspaceRelationRequest(
     @Req() { user }: RequestWithUser,
     @Param('id', ParseUUIDPipe) workspaceId: string,
   ) {
@@ -60,7 +60,7 @@ export class WorkspaceRelationController {
   }
 
   @Delete(':id')
-  async deleteCoworker(
+  async deleteWorkspaceRelation(
     @Req() { user }: RequestWithUser,
     @Param('id', ParseUUIDPipe) workspaceId: string,
   ) {

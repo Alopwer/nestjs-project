@@ -50,7 +50,7 @@ export class CoworkerRelationController {
   }
 
   @Delete(':id')
-  async deleteCoworker(
+  async deleteCoworkerRelation(
     @Req() { user }: RequestWithUser,
     @Param('id', ParseUUIDPipe) addresseeId: string,
   ) {
