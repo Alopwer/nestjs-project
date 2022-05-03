@@ -17,9 +17,8 @@ import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.m
 
 @Module({
   imports: [
-    CoworkerRelationModule,
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     DatabaseModule,
     UserModule,
@@ -28,7 +27,7 @@ import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.m
     WorkspaceModule,
     CardModule,
     CoworkerRelationModule,
-    WorkspaceRelationModule
+    WorkspaceRelationModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,13 +35,11 @@ import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.m
     {
       provide: APP_FILTER,
       useClass: ExceptionsLoggerFilter,
-    }
+    },
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes(AuthController)
+    consumer.apply(LoggerMiddleware).forRoutes(AuthController);
   }
 }

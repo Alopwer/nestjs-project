@@ -1,6 +1,6 @@
-import { RelationsStatusCode } from "src/shared/relation/enum/relationsStatusCode.enum";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import { User } from "../user/user.entity";
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Entity('coworker_relations')
 export class CoworkerRelation {
@@ -21,7 +21,7 @@ export class CoworkerRelation {
   @Column({
     type: 'enum',
     enum: RelationsStatusCode,
-    default: null
+    default: null,
   })
   status_code: RelationsStatusCode;
 }

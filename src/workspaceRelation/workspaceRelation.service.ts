@@ -1,52 +1,78 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { RelationsStatusCode } from "src/shared/relation/enum/relationsStatusCode.enum";
-import { SharedRelationService } from "src/shared/relation/relation.service";
-import { WorkspaceService } from "src/workspace/workspace.service";
-import { Connection } from "typeorm";
-import { ICreateWorkspaceRelation } from "./interface/createWorkspaceRelation.interface";
-import { WorkspaceRelationsRepository } from "./repository/workspaceRelation.repository";
-import { WorkspaceRelation } from "./workspaceRelation.entity";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { SharedRelationService } from 'src/shared/relation/relation.service';
+import { Connection } from 'typeorm';
+import { ICreateWorkspaceRelation } from './interface/createWorkspaceRelation.interface';
+import { WorkspaceRelationsRepository } from './repository/workspaceRelation.repository';
+import { WorkspaceRelation } from './workspaceRelation.entity';
 
 @Injectable()
 export class WorkspaceRelationService {
-  private workspaceRelationsRepository: WorkspaceRelationsRepository
   constructor(
-    private readonly connection: Connection,
+    private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
     private readonly sharedRelationService: SharedRelationService,
+  ) {}
+
+  async getAllPendingWorkspaceRelationRequestsById(
+    workspace_id: string,
+    addressee_id: string,
   ) {
-    this.workspaceRelationsRepository = this.connection.getCustomRepository(WorkspaceRelationsRepository)
+    return this.workspaceRelationsRepository.find({
+      select: ['workspace_id', 'requester_id'],
+      where: {
+        workspace_id,
+        addressee_id,
+        status_code: RelationsStatusCode.Requested,
+      },
+    });
   }
 
-  async createWorkspaceRelationRequest({ requesterId, addresseeId, workspaceId }: ICreateWorkspaceRelation) {
+  async createWorkspaceRelationRequest({
+    requesterId,
+    addresseeId,
+    workspaceId,
+  }: ICreateWorkspaceRelation) {
     if (requesterId === addresseeId) {
       throw new BadRequestException();
     }
-    const workspaceRelationStatus = await this.workspaceRelationsRepository.findOneRelationByIds(requesterId, workspaceId);
+    const workspaceRelationStatus =
+      await this.workspaceRelationsRepository.findOneRelationByIds(
+        requesterId,
+        workspaceId,
+      );
     if (workspaceRelationStatus) {
-      await this.sharedRelationService.checkRelationStatus(workspaceRelationStatus.status_code);
+      await this.sharedRelationService.checkRelationStatus(
+        workspaceRelationStatus.status_code,
+      );
     }
     const workspaceRelation = this.workspaceRelationsRepository.create({
       requester_id: requesterId,
       addressee_id: addresseeId,
       workspace_id: workspaceId,
-      status_code: RelationsStatusCode.Requested
+      status_code: RelationsStatusCode.Requested,
     });
-    return await this.workspaceRelationsRepository.save(workspaceRelation);
+    return this.workspaceRelationsRepository.save(workspaceRelation);
   }
 
-  async acceptWorkspaceRelationRequest(workspaceId: string, addresseeId: string) {
-    const findConditions = { 
+  async acceptWorkspaceRelationRequest(
+    workspaceId: string,
+    addresseeId: string,
+  ) {
+    const findConditions = {
       workspace_id: workspaceId,
       addressee_id: addresseeId,
-      status_code: RelationsStatusCode.Requested
-    }
-    const coworkerRelation = await this.workspaceRelationsRepository.findOneRelationOrFail(findConditions);
+      status_code: RelationsStatusCode.Requested,
+    };
+    const coworkerRelation =
+      await this.workspaceRelationsRepository.findOneRelationOrFail(
+        findConditions,
+      );
     coworkerRelation.status_code = RelationsStatusCode.Accepted;
-    return await this.workspaceRelationsRepository.save(coworkerRelation);
+    return this.workspaceRelationsRepository.save(coworkerRelation);
   }
 
   async deleteWorkspaceRelation(workspaceId: string, requesterId: string) {
-    return await this.workspaceRelationsRepository
+    return this.workspaceRelationsRepository
       .createQueryBuilder('workspace_relations')
       .delete()
       .from(WorkspaceRelation)

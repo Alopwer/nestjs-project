@@ -1,9 +1,16 @@
-import { Exclude } from "class-transformer";
-import { Card } from "src/card/card.entity";
-import { User } from "src/user/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Exclude } from 'class-transformer';
+import { Card } from 'src/card/card.entity';
+import { User } from 'src/user/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity("workspaces")
+@Entity('workspaces')
 export class Workspace {
   @PrimaryGeneratedColumn('uuid')
   workspace_id: string;
@@ -19,6 +26,6 @@ export class Workspace {
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  @OneToMany(() => Card, card => card.workspace)
+  @OneToMany(() => Card, (card) => card.workspace)
   cards: Card[];
 }

@@ -1,4 +1,4 @@
-import { TokenType } from "../enum/tokenType.enum";
+import { TokenType } from '../enum/tokenType.enum';
 
 export interface VerifyToken {
   token: string;

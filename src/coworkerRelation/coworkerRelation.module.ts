@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthService } from 'src/auth/auth.service';
 import { UserModule } from 'src/user/user.module';
 import { CoworkerRelationController } from './coworkerRelation.controller';
 import { CoworkerRelationService } from './coworkerRelation.service';
-import { CoworkerRelation } from './coworkerRelation.entity';
 import { CoworkerRelationsRepository } from './repository/coworkerRelations.repository';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([CoworkerRelationsRepository]),
     UserModule,
-    TypeOrmModule.forFeature([CoworkerRelation])
+    AuthModule,
   ],
   controllers: [CoworkerRelationController],
-  providers: [CoworkerRelationService, CoworkerRelationsRepository, AuthService],
+  providers: [CoworkerRelationService],
 })
 export class CoworkerRelationModule {}

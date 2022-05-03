@@ -1,7 +1,7 @@
-import { RelationsStatusCode } from "src/shared/relation/enum/relationsStatusCode.enum";
-import { User } from "src/user/user.entity";
-import { Workspace } from "src/workspace/workspace.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { User } from 'src/user/user.entity';
+import { Workspace } from 'src/workspace/workspace.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('workspace_relations')
 export class WorkspaceRelation {
@@ -29,7 +29,7 @@ export class WorkspaceRelation {
   @Column({
     type: 'enum',
     enum: RelationsStatusCode,
-    default: null
+    default: null,
   })
   status_code: RelationsStatusCode;
 }

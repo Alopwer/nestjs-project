@@ -1,21 +1,26 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { CreateUserDto } from "./dto/createUser.dto";
-import { User } from "./user.entity";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/createUser.dto';
+import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
-import { DecodedToken } from "src/auth/interface/decodedToken.interface";
+import { DecodedToken } from 'src/auth/interface/decodedToken.interface';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create({
-      ...createUserDto
+      ...createUserDto,
     });
     await this.userRepository.save(newUser);
     return newUser;
@@ -26,7 +31,10 @@ export class UserService {
     if (user) {
       return user;
     }
-    throw new HttpException('User with this email does not exist', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'User with this email does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async getUserById(userId: string) {
@@ -34,11 +42,14 @@ export class UserService {
     if (user) {
       return user;
     }
-    throw new HttpException('User with this id does not exist', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async checkPassword(enteredPwd: string, userPwd: string) {
-    const passwordsAreEqual = await bcrypt.compare(enteredPwd, userPwd)
+    const passwordsAreEqual = await bcrypt.compare(enteredPwd, userPwd);
     if (!passwordsAreEqual) {
       throw new UnauthorizedException();
     }
@@ -46,6 +57,6 @@ export class UserService {
   }
 
   async getUserFromToken(decodedToken: DecodedToken) {
-    return await this.getUserById(decodedToken.userId);
+    return this.getUserById(decodedToken.userId);
   }
 }
