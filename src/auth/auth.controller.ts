@@ -20,7 +20,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   logIn(@Req() request: RequestWithUser) {
     const { user } = request;
-    const cookies = this.authService.getCookieWithJwtTokens(user.id);
+    const cookies = this.authService.getCookieWithJwtTokens(user.user_id);
     request.res.setHeader('Set-Cookie', [cookies.accessToken, cookies.refreshToken]);
     return user;
   }
@@ -36,7 +36,7 @@ export class AuthController {
   @Get('refresh-token')
   @UseGuards(RefreshTokenGuard)
   refreshToken(@Req() request: RequestWithUser) {
-    const accessTokenCookie = this.authService.getAccessTokenCookie({ userId: request.user.id });
+    const accessTokenCookie = this.authService.getAccessTokenCookie({ userId: request.user.user_id });
     request.res.setHeader('Set-Cookie', accessTokenCookie);
     request.res.sendStatus(200);
   }

@@ -1,4 +1,4 @@
 export interface CreateCardData {
-  workspaceId: string;
+  workspace_id: string;
   title: string;
 }

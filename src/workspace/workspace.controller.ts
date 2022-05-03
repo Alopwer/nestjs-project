@@ -19,12 +19,12 @@ export class WorkspaceController {
 
   @Get()
   async getAllOwnerWorkspaces(@Req() request: RequestWithUser): Promise<Workspace[]> {
-    return await this.workspaceService.getAllOwnerWorkspaces(request.user.id);
+    return await this.workspaceService.getAllOwnerWorkspaces(request.user.user_id);
   }
 
   @Post()
   async createWorkspace(@Req() request: RequestWithUser, @Body() createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
-    return await this.workspaceService.createWorkspace(request.user.id, createWorkspaceDto);
+    return await this.workspaceService.createWorkspace(request.user.user_id, createWorkspaceDto);
   }
 
   @Put(':id')
@@ -48,11 +48,11 @@ export class WorkspaceController {
   @Post(':id/cards')
   @UseGuards(WorkspaceOwnershipGuard)
   async createCard(
-    @Param('id', ParseUUIDPipe) workspaceId: string, 
+    @Param('id', ParseUUIDPipe) workspace_id: string, 
     @Body() createCardDto: CreateCardDto
   ) {
     return await this.cardService.createCard({
-      workspaceId,
+      workspace_id,
       ...createCardDto
     });
   }

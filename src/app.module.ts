@@ -1,3 +1,4 @@
+import { CoworkerRelationModule } from './coworkerRelation/coworkerRelation.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
@@ -12,9 +13,11 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { UserModule } from './user/user.module';
 import { ExceptionsLoggerFilter } from './utils/exceptionLogger.filter';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.module';
 
 @Module({
   imports: [
+    CoworkerRelationModule,
     ConfigModule.forRoot({
       isGlobal: true
     }),
@@ -23,7 +26,9 @@ import { WorkspaceModule } from './workspace/workspace.module';
     AuthModule,
     CoreModule,
     WorkspaceModule,
-    CardModule
+    CardModule,
+    CoworkerRelationModule,
+    WorkspaceRelationModule
   ],
   controllers: [AppController],
   providers: [

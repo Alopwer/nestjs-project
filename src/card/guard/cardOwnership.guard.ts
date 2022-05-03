@@ -10,7 +10,7 @@ export class CardOwnershipGuard implements CanActivate {
   
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest() as RequestWithUser;
-    const userId = request.user.id;
+    const userId = request.user.user_id;
     const userIsOwner = await this.cardService.checkOwner(userId, request.params.id);
     if (!userIsOwner) {
       throw new NotFoundException();

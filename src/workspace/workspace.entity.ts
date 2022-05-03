@@ -1,21 +1,22 @@
 import { Exclude } from "class-transformer";
 import { Card } from "src/card/card.entity";
 import { User } from "src/user/user.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity("workspaces")
 export class Workspace {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  workspace_id: string;
 
   @Column('varchar', { length: 60 })
   title: string;
 
   @Column()
   @Exclude()
-  ownerId: string;
+  owner_id: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'owner_id' })
   owner: User;
 
   @OneToMany(() => Card, card => card.workspace)

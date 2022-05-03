@@ -13,11 +13,11 @@ export class WorkspaceService {
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<Workspace[]> {
-    return await this.workspaceRepository.find({ ownerId });
+    return await this.workspaceRepository.find({ owner_id: ownerId });
   }
 
   async createWorkspace(ownerId: string, createWorkspaceDto: CreateWorkspaceDto): Promise<Workspace> {
-    const newWorkspace = this.workspaceRepository.create({ ...createWorkspaceDto, ownerId });
+    const newWorkspace = this.workspaceRepository.create({ ...createWorkspaceDto, owner_id: ownerId });
     await this.workspaceRepository.save(newWorkspace);
     return newWorkspace;
   }
@@ -37,6 +37,6 @@ export class WorkspaceService {
     if (!workspace)  {
       throw new NotFoundException();
     }
-    return workspace.ownerId === userId;
+    return workspace.owner_id === userId;
   }
 }

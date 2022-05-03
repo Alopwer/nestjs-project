@@ -24,11 +24,11 @@ export class CardService {
 
   async checkOwner(userId: string, cardId: string) {
     const card = await this.cardRepository.findOne(cardId, { relations: ['workspace'] });
-    return card.workspace.ownerId === userId;
+    return card.workspace.owner_id === userId;
   }
 
   async getAllWorkspaceCards(workspaceId: string): Promise<Card[]> {
-    return await this.cardRepository.find({ workspaceId });
+    return await this.cardRepository.find({ workspace_id: workspaceId });
   }
 
   async createCard(createCardData: CreateCardData): Promise<Card> {
