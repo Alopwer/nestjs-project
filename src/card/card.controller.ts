@@ -10,6 +10,8 @@ import {
 import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
 import { CardService } from './card.service';
 import { UpdateCardDto } from './dto/updateCard.dto';
+import { UpdateCardDataDto } from './dto/updateCardData.dto';
+import { CardEditorGuard } from './guard/cardEditor.guard';
 import { CardOwnershipGuard } from './guard/cardOwnership.guard';
 
 @Controller('cards')
@@ -24,6 +26,15 @@ export class CardController {
     @Body() updateCardDto: UpdateCardDto,
   ) {
     return this.cardService.updateCard(cardId, updateCardDto);
+  }
+
+  @Put(':id/details/:cardDataId')
+  @UseGuards(CardEditorGuard)
+  async updateCardData(
+    @Param('cardDataId', ParseUUIDPipe) cardDataId: string,
+    @Body() updateCardDataDto: UpdateCardDataDto,
+  ) {
+    return this.cardService.updateCardData(cardDataId, updateCardDataDto);
   }
 
   @Delete(':id')

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { SharedRelationService } from 'src/shared/relation/relation.service';
-import { Connection } from 'typeorm';
 import { ICreateWorkspaceRelation } from './interface/createWorkspaceRelation.interface';
 import { WorkspaceRelationsRepository } from './repository/workspaceRelation.repository';
 import { WorkspaceRelation } from './workspaceRelation.entity';

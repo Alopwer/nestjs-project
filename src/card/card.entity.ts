@@ -5,8 +5,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { CardData } from './cardData.entity';
 
 @Entity('cards')
 export class Card {
@@ -25,4 +27,11 @@ export class Card {
   })
   @JoinColumn({ name: 'workspace_id' })
   workspace: Workspace;
+
+  @Column()
+  card_data_id: string;
+
+  @OneToOne(() => CardData, card_data => card_data.card, { cascade: true })
+  @JoinColumn({ name: 'card_data_id' })
+  card_data: CardData;
 }
