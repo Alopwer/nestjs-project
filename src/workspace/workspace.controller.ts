@@ -62,6 +62,7 @@ export class WorkspaceController {
   }
 
   @Get(':id/cards')
+  // TODO: create workspaceMemberGuard, create separate enpoint for only owner's workspaces, rename editorGuard to memberGuard
   @UseGuards(WorkspaceOwnershipGuard)
   async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {
     return this.cardService.getAllWorkspaceCards(workspaceId);
@@ -77,5 +78,11 @@ export class WorkspaceController {
       workspace_id,
       ...createCardDto,
     });
+  }
+
+  @Get(':id/link')
+  @UseGuards(WorkspaceOwnershipGuard)
+  async getWorkspaceShareCode(@Param('id', ParseUUIDPipe) workspaceId: string) {
+    return this.workspaceService.getWorkspaceShareCode(workspaceId);
   }
 }

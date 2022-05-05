@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
@@ -10,6 +11,7 @@ export class WorkspaceService {
   constructor(
     @InjectRepository(Workspace)
     private readonly workspaceRepository: Repository<Workspace>,
+    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<Workspace[]> {
@@ -47,5 +49,9 @@ export class WorkspaceService {
       throw new NotFoundException();
     }
     return workspace.owner_id === userId;
+  }
+
+  async getWorkspaceShareCode(workspaceId: string) {
+    return this.linkClient.send<string>('get_workspace_share_code', { workspaceId });
   }
 }
