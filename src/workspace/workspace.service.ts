@@ -51,7 +51,7 @@ export class WorkspaceService {
     return workspace.owner_id === userId;
   }
 
-  async getWorkspaceShareCode(workspaceId: string) {
-    return this.linkClient.send<string>('get_workspace_share_code', { workspaceId });
+  async getWorkspaceShareCode(workspaceId: string, requesterId: string) {
+    return this.linkClient.send<string>('get_workspace_share_code', { workspaceId, requesterId });
   }
 }

@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -32,6 +33,17 @@ export class WorkspaceRelationController {
       workspaceId,
       user.user_id,
     );
+  }
+
+  @Post()
+  async createApprovedWorkspaceRelation(
+    @Req() { user }: RequestWithUser,
+    @Query('workspaceShareCode') workspaceShareCode: string
+  ) {
+    return this.workspaceRelationService.createApprovedWorkspaceRelation({
+      addresseeId: user.user_id,
+      workspaceShareCode
+    });
   }
 
   @Post(':id')

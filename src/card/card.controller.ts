@@ -11,7 +11,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
 import { CardService } from './card.service';
 import { UpdateCardDto } from './dto/updateCard.dto';
 import { UpdateCardDataDto } from './dto/updateCardData.dto';
-import { CardEditorGuard } from './guard/cardEditor.guard';
+import { CardMemberGuard } from './guard/cardMember.guard';
 import { CardOwnershipGuard } from './guard/cardOwnership.guard';
 
 @Controller('cards')
@@ -29,7 +29,7 @@ export class CardController {
   }
 
   @Put(':id/details/:cardDataId')
-  @UseGuards(CardEditorGuard)
+  @UseGuards(CardMemberGuard)
   async updateCardData(
     @Param('cardDataId', ParseUUIDPipe) cardDataId: string,
     @Body() updateCardDataDto: UpdateCardDataDto,

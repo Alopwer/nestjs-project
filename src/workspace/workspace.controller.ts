@@ -16,6 +16,7 @@ import { CardService } from 'src/card/card.service';
 import { CreateCardDto } from 'src/card/dto/createCard.dto';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
+import { WorkspaceMemberGuard } from './guard/workspaceMember.guard';
 import { WorkspaceOwnershipGuard } from './guard/workspaceOwnership.guard';
 import { Workspace } from './workspace.entity';
 import { WorkspaceService } from './workspace.service';
@@ -61,9 +62,16 @@ export class WorkspaceController {
     return this.workspaceService.deleteWorkspace(id);
   }
 
-  @Get(':id/cards')
-  // TODO: create workspaceMemberGuard, create separate enpoint for only owner's workspaces, rename editorGuard to memberGuard
+  @Get('/cards')
   @UseGuards(WorkspaceOwnershipGuard)
+  async getAllWorkspaceCardsByOwner(
+    @Req() { user }: RequestWithUser
+  ) {
+    return this.cardService.getAllWorkspaceCardsByOwner(user.user_id);
+  }
+
+  @Get(':id/cards')
+  @UseGuards(WorkspaceMemberGuard)
   async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {
     return this.cardService.getAllWorkspaceCards(workspaceId);
   }
@@ -82,7 +90,10 @@ export class WorkspaceController {
 
   @Get(':id/link')
   @UseGuards(WorkspaceOwnershipGuard)
-  async getWorkspaceShareCode(@Param('id', ParseUUIDPipe) workspaceId: string) {
-    return this.workspaceService.getWorkspaceShareCode(workspaceId);
+  async getWorkspaceShareCode(
+    @Param('id', ParseUUIDPipe) workspaceId: string,
+    @Req() { user }: RequestWithUser,
+  ) {
+    return this.workspaceService.getWorkspaceShareCode(workspaceId, user.user_id);
   }
 }

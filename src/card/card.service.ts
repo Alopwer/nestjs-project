@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { Workspace } from 'src/workspace/workspace.entity';
 import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Card } from './card.entity';
 import { CardData } from './cardData.entity';
 import { UpdateCardDto } from './dto/updateCard.dto';
@@ -14,6 +15,8 @@ export class CardService {
   constructor(
     @InjectRepository(Card)
     private readonly cardRepository: Repository<Card>,
+    @InjectRepository(Workspace)
+    private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(CardData)
     private readonly cardDataRepository: Repository<CardData>,
     private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
@@ -67,5 +70,11 @@ export class CardService {
 
   async getAllWorkspaceCards(workspaceId: string): Promise<Card[]> {
     return this.cardRepository.find({ where: { workspace_id: workspaceId }});
+  }
+
+  async getAllWorkspaceCardsByOwner(ownerId: string): Promise<Card[]> {
+    const workspacesByOwner = await this.workspaceRepository.find({ owner_id: ownerId });
+    const workspacesIdsByOwner = workspacesByOwner.map(workspace => workspace.workspace_id);
+    return this.cardRepository.find({ where: { workspace_id: In(workspacesIdsByOwner) }});
   }
 }

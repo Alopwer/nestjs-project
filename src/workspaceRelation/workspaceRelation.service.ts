@@ -1,7 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom, map } from 'rxjs';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { SharedRelationService } from 'src/shared/relation/relation.service';
+import { ICreateApprovedWorkspaceRelation } from './interface/createApprovedWorkspaceRelation.interface';
 import { ICreateWorkspaceRelation } from './interface/createWorkspaceRelation.interface';
+import { IGetDataByWorkspaceShareCode } from './interface/getDataByWorkspaceShareCode.interface';
 import { WorkspaceRelationsRepository } from './repository/workspaceRelation.repository';
 import { WorkspaceRelation } from './workspaceRelation.entity';
 
@@ -10,6 +14,7 @@ export class WorkspaceRelationService {
   constructor(
     private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
     private readonly sharedRelationService: SharedRelationService,
+    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
   ) {}
 
   async getAllPendingWorkspaceRelationRequestsById(
@@ -26,10 +31,26 @@ export class WorkspaceRelationService {
     });
   }
 
+  async createApprovedWorkspaceRelation({
+    addresseeId,
+    workspaceShareCode,
+  }: ICreateApprovedWorkspaceRelation) {
+    const { requesterId, workspaceId } = await firstValueFrom(
+      this.linkClient.send<IGetDataByWorkspaceShareCode>('get_data_by_workspace_share_code', { workspaceShareCode })
+    );
+    return this.createWorkspaceRelationRequest({
+      requesterId,
+      addresseeId,
+      workspaceId,
+      statusCode: RelationsStatusCode.Accepted
+    });
+  }
+
   async createWorkspaceRelationRequest({
     requesterId,
     addresseeId,
     workspaceId,
+    statusCode = RelationsStatusCode.Requested
   }: ICreateWorkspaceRelation) {
     if (requesterId === addresseeId) {
       throw new BadRequestException();
@@ -48,7 +69,7 @@ export class WorkspaceRelationService {
       requester_id: requesterId,
       addressee_id: addresseeId,
       workspace_id: workspaceId,
-      status_code: RelationsStatusCode.Requested,
+      status_code: statusCode
     });
     return this.workspaceRelationsRepository.save(workspaceRelation);
   }
