@@ -11,9 +11,9 @@ import { SharedModule } from '../shared/shared.module';
     ClientsModule.register([
       {
         name: 'LINK_SERVICE',
-        transport: Transport.TCP
+        transport: Transport.TCP,
       },
-    ])
+    ]),
   ],
   exports: [JwtModule, SharedModule, ClientsModule],
 })

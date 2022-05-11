@@ -1,5 +1,5 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Card } from "./card.entity";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Card } from './card.entity';
 
 @Entity('cards_data')
 export class CardData {
@@ -9,6 +9,6 @@ export class CardData {
   @Column()
   description: string;
 
-  @OneToOne(() => Card, card => card.card_id, { onDelete: 'CASCADE' })
+  @OneToOne(() => Card, (card) => card.card_id, { onDelete: 'CASCADE' })
   card: Card;
 }

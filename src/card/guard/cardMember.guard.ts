@@ -19,7 +19,7 @@ export class CardMemberGuard implements CanActivate {
       request.params.id,
     );
     if (userIsOwner) return true;
-    const userIsPartOfWorkspace = await this.cardService.checkEditor(
+    const userIsPartOfWorkspace = await this.cardService.checkMember(
       userId,
       request.params.id,
     );

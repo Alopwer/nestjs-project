@@ -22,7 +22,7 @@ export class CoworkerRelationController {
 
   @Get()
   async getAllCoworkerRelationsById(@Req() { user }: RequestWithUser) {
-    return this.coworkerRelationService.getAllCoworkerRelationsById(
+    return this.coworkerRelationService.getAllCoworkerRelations(
       user.user_id,
     );
   }

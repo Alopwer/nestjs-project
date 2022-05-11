@@ -18,9 +18,14 @@ export class WorkspaceMemberGuard implements CanActivate {
       userId,
       request.params.id,
     );
-    if (!userIsOwner) {
+    if (userIsOwner) return true;
+    const userIsPartOfWorkspace = await this.workspaceService.checkMember(
+      userId,
+      request.params.id,
+    );
+    if (!userIsPartOfWorkspace) {
       throw new NotFoundException();
-    };
+    }
     return true;
   }
 }

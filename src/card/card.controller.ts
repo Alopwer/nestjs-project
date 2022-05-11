@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
+import { RequestWithUser } from 'src/auth/interface/requestWithUser.interface';
 import { CardService } from './card.service';
 import { UpdateCardDto } from './dto/updateCard.dto';
 import { UpdateCardDataDto } from './dto/updateCardData.dto';
@@ -19,8 +22,14 @@ import { CardOwnershipGuard } from './guard/cardOwnership.guard';
 export class CardController {
   constructor(private readonly cardService: CardService) {}
 
-  @Put(':id')
+  @Get()
   @UseGuards(CardOwnershipGuard)
+  async getAllCardsByOwner(@Req() { user }: RequestWithUser) {
+    return this.cardService.getAllCardsByOwner(user.user_id);
+  }
+
+  @Put(':id')
+  @UseGuards(CardMemberGuard)
   async updateCard(
     @Param('id', ParseUUIDPipe) cardId: string,
     @Body() updateCardDto: UpdateCardDto,

@@ -11,9 +11,14 @@ import { CardData } from './cardData.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Card, CardData, WorkspaceRelationsRepository, Workspace]),
+    TypeOrmModule.forFeature([
+      Card,
+      CardData,
+      WorkspaceRelationsRepository,
+      Workspace,
+    ]),
     UserModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [CardController],
   providers: [CardService],

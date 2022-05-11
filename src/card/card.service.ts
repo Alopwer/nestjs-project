@@ -24,9 +24,12 @@ export class CardService {
 
   async createCard(createCardData: CreateCardData): Promise<Card> {
     const cardData = this.cardDataRepository.create({
-      description: createCardData.description
-    })
-    const newCard = this.cardRepository.create({ ...createCardData, card_data: cardData });
+      description: createCardData.description,
+    });
+    const newCard = this.cardRepository.create({
+      ...createCardData,
+      card_data: cardData,
+    });
     await this.cardRepository.save(newCard);
     return newCard;
   }
@@ -36,7 +39,10 @@ export class CardService {
     return this.cardRepository.findOne(cardId);
   }
 
-  async updateCardData(cardDataId: string, updateCardDataDto: UpdateCardDataDto) {
+  async updateCardData(
+    cardDataId: string,
+    updateCardDataDto: UpdateCardDataDto,
+  ) {
     await this.cardDataRepository.update(cardDataId, updateCardDataDto);
     return this.cardDataRepository.findOne(cardDataId);
   }
@@ -53,28 +59,34 @@ export class CardService {
     return card.workspace.owner_id === userId;
   }
 
-  async checkEditor(userId: string, cardId: string) {
+  async checkMember(userId: string, cardId: string) {
     const card = await this.cardRepository.findOne(cardId, {
       relations: ['workspace'],
     });
     const workspaceRelation = await this.workspaceRelationsRepository
       .createQueryBuilder('workspace_relations')
       .where('addressee_id = :userId', { userId })
-      .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', { 
-        workspaceId: card.workspace_id, 
-        statusCode: RelationsStatusCode.Accepted 
+      .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', {
+        workspaceId: card.workspace_id,
+        statusCode: RelationsStatusCode.Accepted,
       })
       .getOne();
     return workspaceRelation;
   }
 
   async getAllWorkspaceCards(workspaceId: string): Promise<Card[]> {
-    return this.cardRepository.find({ where: { workspace_id: workspaceId }});
+    return this.cardRepository.find({ where: { workspace_id: workspaceId } });
   }
 
-  async getAllWorkspaceCardsByOwner(ownerId: string): Promise<Card[]> {
-    const workspacesByOwner = await this.workspaceRepository.find({ owner_id: ownerId });
-    const workspacesIdsByOwner = workspacesByOwner.map(workspace => workspace.workspace_id);
-    return this.cardRepository.find({ where: { workspace_id: In(workspacesIdsByOwner) }});
+  async getAllCardsByOwner(ownerId: string): Promise<Card[]> {
+    const workspacesByOwner = await this.workspaceRepository.find({
+      owner_id: ownerId,
+    });
+    const workspacesIdsByOwner = workspacesByOwner.map(
+      (workspace) => workspace.workspace_id,
+    );
+    return this.cardRepository.find({
+      where: { workspace_id: In(workspacesIdsByOwner) },
+    });
   }
 }

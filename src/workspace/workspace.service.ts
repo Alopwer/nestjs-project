@@ -1,6 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
@@ -11,7 +13,8 @@ export class WorkspaceService {
   constructor(
     @InjectRepository(Workspace)
     private readonly workspaceRepository: Repository<Workspace>,
-    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
+    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
+    private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<Workspace[]> {
@@ -51,7 +54,23 @@ export class WorkspaceService {
     return workspace.owner_id === userId;
   }
 
+  async checkMember(userId: string, workspaceId: string) {
+    const workspace = await this.workspaceRepository.findOne(workspaceId);
+    const workspaceRelation = await this.workspaceRelationsRepository
+      .createQueryBuilder('workspace_relations')
+      .where('addressee_id = :userId', { userId })
+      .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', {
+        workspaceId: workspace.workspace_id,
+        statusCode: RelationsStatusCode.Accepted,
+      })
+      .getOne();
+    return workspaceRelation;
+  }
+
   async getWorkspaceShareCode(workspaceId: string, requesterId: string) {
-    return this.linkClient.send<string>('get_workspace_share_code', { workspaceId, requesterId });
+    return this.linkClient.send<string>('get_workspace_share_code', {
+      workspaceId,
+      requesterId,
+    });
   }
 }

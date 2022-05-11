@@ -36,6 +36,24 @@ export class WorkspaceController {
     return this.workspaceService.getAllOwnerWorkspaces(request.user.user_id);
   }
 
+  @Get(':id/cards')
+  @UseGuards(WorkspaceMemberGuard)
+  async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {
+    return this.cardService.getAllWorkspaceCards(workspaceId);
+  }
+
+  @Get(':id/link')
+  @UseGuards(WorkspaceOwnershipGuard)
+  async getWorkspaceShareCode(
+    @Param('id', ParseUUIDPipe) workspaceId: string,
+    @Req() { user }: RequestWithUser,
+  ) {
+    return this.workspaceService.getWorkspaceShareCode(
+      workspaceId,
+      user.user_id,
+    );
+  }
+
   @Post()
   async createWorkspace(
     @Req() request: RequestWithUser,
@@ -45,6 +63,18 @@ export class WorkspaceController {
       request.user.user_id,
       createWorkspaceDto,
     );
+  }
+
+  @Post(':id/cards')
+  @UseGuards(WorkspaceMemberGuard)
+  async createCard(
+    @Param('id', ParseUUIDPipe) workspace_id: string,
+    @Body() createCardDto: CreateCardDto,
+  ) {
+    return this.cardService.createCard({
+      workspace_id,
+      ...createCardDto,
+    });
   }
 
   @Put(':id')
@@ -60,40 +90,5 @@ export class WorkspaceController {
   @UseGuards(WorkspaceOwnershipGuard)
   async deleteWorkspace(@Param('id', ParseUUIDPipe) id: string) {
     return this.workspaceService.deleteWorkspace(id);
-  }
-
-  @Get('/cards')
-  @UseGuards(WorkspaceOwnershipGuard)
-  async getAllWorkspaceCardsByOwner(
-    @Req() { user }: RequestWithUser
-  ) {
-    return this.cardService.getAllWorkspaceCardsByOwner(user.user_id);
-  }
-
-  @Get(':id/cards')
-  @UseGuards(WorkspaceMemberGuard)
-  async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {
-    return this.cardService.getAllWorkspaceCards(workspaceId);
-  }
-
-  @Post(':id/cards')
-  @UseGuards(WorkspaceOwnershipGuard)
-  async createCard(
-    @Param('id', ParseUUIDPipe) workspace_id: string,
-    @Body() createCardDto: CreateCardDto,
-  ) {
-    return this.cardService.createCard({
-      workspace_id,
-      ...createCardDto,
-    });
-  }
-
-  @Get(':id/link')
-  @UseGuards(WorkspaceOwnershipGuard)
-  async getWorkspaceShareCode(
-    @Param('id', ParseUUIDPipe) workspaceId: string,
-    @Req() { user }: RequestWithUser,
-  ) {
-    return this.workspaceService.getWorkspaceShareCode(workspaceId, user.user_id);
   }
 }

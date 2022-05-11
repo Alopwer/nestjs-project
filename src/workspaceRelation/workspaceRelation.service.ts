@@ -14,8 +14,20 @@ export class WorkspaceRelationService {
   constructor(
     private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
     private readonly sharedRelationService: SharedRelationService,
-    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
+    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
   ) {}
+
+  async getAllWorkspaceRelationMembers(
+    workspace_id: string,
+    owner_id: string
+  ) {
+    const memberIds: Array<{ member_id: string }> =
+      await this.workspaceRelationsRepository.createQueryBuilder('workspace_relations')
+        .select(['addressee_id as member_id'])
+        .andWhere("workspace_id = :workspace_id AND status_code = :status_code", { workspace_id, status_code: RelationsStatusCode.Accepted })
+        .getRawMany();
+    return [owner_id, ...memberIds.map((memberData) => memberData.member_id)];
+  }
 
   async getAllPendingWorkspaceRelationRequestsById(
     workspace_id: string,
@@ -36,13 +48,16 @@ export class WorkspaceRelationService {
     workspaceShareCode,
   }: ICreateApprovedWorkspaceRelation) {
     const { requesterId, workspaceId } = await firstValueFrom(
-      this.linkClient.send<IGetDataByWorkspaceShareCode>('get_data_by_workspace_share_code', { workspaceShareCode })
+      this.linkClient.send<IGetDataByWorkspaceShareCode>(
+        'get_data_by_workspace_share_code',
+        { workspaceShareCode },
+      ),
     );
-    return this.createWorkspaceRelationRequest({
+    return this.saveRelation({
       requesterId,
       addresseeId,
       workspaceId,
-      statusCode: RelationsStatusCode.Accepted
+      statusCode: RelationsStatusCode.Accepted,
     });
   }
 
@@ -50,7 +65,6 @@ export class WorkspaceRelationService {
     requesterId,
     addresseeId,
     workspaceId,
-    statusCode = RelationsStatusCode.Requested
   }: ICreateWorkspaceRelation) {
     if (requesterId === addresseeId) {
       throw new BadRequestException();
@@ -65,13 +79,11 @@ export class WorkspaceRelationService {
         workspaceRelationStatus.status_code,
       );
     }
-    const workspaceRelation = this.workspaceRelationsRepository.create({
-      requester_id: requesterId,
-      addressee_id: addresseeId,
-      workspace_id: workspaceId,
-      status_code: statusCode
+    return this.saveRelation({
+      requesterId,
+      addresseeId,
+      workspaceId,
     });
-    return this.workspaceRelationsRepository.save(workspaceRelation);
   }
 
   async acceptWorkspaceRelationRequest(
@@ -100,5 +112,20 @@ export class WorkspaceRelationService {
       .orWhere('addressee_id = :requesterId', { requesterId })
       .andWhere('workspace_id = :workspaceId', { workspaceId })
       .execute();
+  }
+
+  async saveRelation({
+    requesterId,
+    addresseeId,
+    workspaceId,
+    statusCode = RelationsStatusCode.Requested,
+  }: ICreateWorkspaceRelation) {
+    const workspaceRelation = this.workspaceRelationsRepository.create({
+      requester_id: requesterId,
+      addressee_id: addresseeId,
+      workspace_id: workspaceId,
+      status_code: statusCode,
+    });
+    return this.workspaceRelationsRepository.save(workspaceRelation);
   }
 }

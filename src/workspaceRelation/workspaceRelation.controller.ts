@@ -24,6 +24,18 @@ export class WorkspaceRelationController {
     private readonly workspaceRelationService: WorkspaceRelationService,
   ) {}
 
+  @Get(':id/users')
+  @UseGuards(WorkspaceOwnershipGuard)
+  async getAllWorkspaceRelationMembers(
+    @Req() { user }: RequestWithUser,
+    @Param('id', ParseUUIDPipe) workspaceId: string,
+  ) {
+    return this.workspaceRelationService.getAllWorkspaceRelationMembers(
+      workspaceId,
+      user.user_id,
+    );
+  }
+
   @Get(':id/pending')
   async getAllPendingWorkspaceRelationRequestsById(
     @Req() { user }: RequestWithUser,
@@ -38,11 +50,11 @@ export class WorkspaceRelationController {
   @Post()
   async createApprovedWorkspaceRelation(
     @Req() { user }: RequestWithUser,
-    @Query('workspaceShareCode') workspaceShareCode: string
+    @Query('workspaceShareCode') workspaceShareCode: string,
   ) {
     return this.workspaceRelationService.createApprovedWorkspaceRelation({
       addresseeId: user.user_id,
-      workspaceShareCode
+      workspaceShareCode,
     });
   }
 

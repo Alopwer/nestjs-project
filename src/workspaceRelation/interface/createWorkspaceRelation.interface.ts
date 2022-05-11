@@ -1,4 +1,4 @@
-import { RelationsStatusCode } from "src/shared/relation/enum/relationsStatusCode.enum";
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 
 export interface ICreateWorkspaceRelation {
   requesterId: string;

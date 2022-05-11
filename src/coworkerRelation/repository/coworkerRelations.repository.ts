@@ -36,7 +36,7 @@ export class CoworkerRelationsRepository extends Repository<CoworkerRelation> {
     return coworkerRelation;
   }
 
-  async findAllRelationsById(requester_id: string) {
+  async findAllRelationsByUserId(requester_id: string) {
     const coworkerIds: Array<{ coworker_id: string }> =
       await this.createQueryBuilder('coworker_relations')
         .select(

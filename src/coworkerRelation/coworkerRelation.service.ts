@@ -11,8 +11,8 @@ export class CoworkerRelationService {
     private readonly sharedRelationService: SharedRelationService,
   ) {}
 
-  async getAllCoworkerRelationsById(requesterId: string) {
-    return this.coworkerRelationsRepository.findAllRelationsById(requesterId);
+  async getAllCoworkerRelations(requesterId: string) {
+    return this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
   }
 
   async createCoworkerRelationRequest(
