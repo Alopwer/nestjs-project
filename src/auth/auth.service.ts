@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,17 +11,16 @@ import { UserService } from '../user/user.service';
 import { TokenPayload } from './interface/tokenPayload.interface';
 import { SharedService } from '../shared/shared.service';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/user/user.entity';
 import { VerifyToken } from './interface/verifyToken.interface';
 import { DecodedToken } from './interface/decodedToken.interface';
-
+// remove secure and samesite flags after ngrok is down
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly sharedService: SharedService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async register(registrationData: RegisterDto) {
@@ -56,7 +56,7 @@ export class AuthService {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: +this.configService.get('JWT_EXPIRATION_TIME'),
     });
-    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    return `Authentication=${accessToken}; SameSite=None; Secure; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_EXPIRATION_TIME',
     )}`;
   }
@@ -66,15 +66,15 @@ export class AuthService {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       expiresIn: +this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
     });
-    return `RefreshToken=${refreshToken}; HttpOnly; Path=/auth/refresh-token; Max-Age=${this.configService.get(
+    return `RefreshToken=${refreshToken}; SameSite=None; Secure; HttpOnly; Path=/auth/refresh-token; Max-Age=${this.configService.get(
       'REFRESH_TOKEN_EXPIRATION_TIME',
     )}`;
   }
 
   getCookieForLogOut() {
     return {
-      accessToken: `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-      refreshToken: `RefreshToken=; HttpOnly; Path=/auth/refresh-token; Max-Age=0`,
+      accessToken: `Authentication=; SameSite=None; Secure; HttpOnly; Path=/; Max-Age=0`,
+      refreshToken: `RefreshToken=; SameSite=None; Secure; HttpOnly; Path=/auth/refresh-token; Max-Age=0`,
     };
   }
 
