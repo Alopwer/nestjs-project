@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
@@ -24,6 +24,11 @@ export class UserService {
     });
     await this.userRepository.save(newUser);
     return newUser;
+  }
+
+  async getUsersByUsername(username: string) {
+    const users = await this.userRepository.find({ username: ILike(`${username}%`) });
+    return users;
   }
 
   async getUserByEmail(email: string) {
@@ -46,6 +51,14 @@ export class UserService {
       'User with this id does not exist',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async getUsersByIds(userIds: string[]) {
+    return this.userRepository.find({ user_id: In(userIds) });
+  }
+
+  async getUsersByIdsAndUsername(userIds: string[], username: string) {
+    return this.userRepository.find({ user_id: In(userIds), username: ILike(`${username}%`) });
   }
 
   async checkPassword(enteredPwd: string, userPwd: string) {

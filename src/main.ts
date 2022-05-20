@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { 
     cors: {
       credentials: true,
-      origin: ['http://localhost:8080', 'https://4d3c-95-65-17-139.eu.ngrok.io'] 
+      origin: ['http://localhost:8080'] 
     } 
   });
   app.useGlobalInterceptors(new TransformToCamelCaseInterceptor());

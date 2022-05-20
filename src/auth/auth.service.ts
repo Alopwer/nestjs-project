@@ -56,7 +56,7 @@ export class AuthService {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: +this.configService.get('JWT_EXPIRATION_TIME'),
     });
-    return `Authentication=${accessToken}; SameSite=None; Secure; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_EXPIRATION_TIME',
     )}`;
   }
@@ -66,15 +66,15 @@ export class AuthService {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       expiresIn: +this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
     });
-    return `RefreshToken=${refreshToken}; SameSite=None; Secure; HttpOnly; Path=/auth/refresh-token; Max-Age=${this.configService.get(
+    return `RefreshToken=${refreshToken}; HttpOnly; Path=/auth/refresh-token; Max-Age=${this.configService.get(
       'REFRESH_TOKEN_EXPIRATION_TIME',
     )}`;
   }
 
   getCookieForLogOut() {
     return {
-      accessToken: `Authentication=; SameSite=None; Secure; HttpOnly; Path=/; Max-Age=0`,
-      refreshToken: `RefreshToken=; SameSite=None; Secure; HttpOnly; Path=/auth/refresh-token; Max-Age=0`,
+      accessToken: `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+      refreshToken: `RefreshToken=; HttpOnly; Path=/auth/refresh-token; Max-Age=0`,
     };
   }
 

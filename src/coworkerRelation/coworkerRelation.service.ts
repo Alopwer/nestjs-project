@@ -3,16 +3,24 @@ import { CoworkerRelation } from 'src/coworkerRelation/coworkerRelation.entity';
 import { CoworkerRelationsRepository } from 'src/coworkerRelation/repository/coworkerRelations.repository';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { SharedRelationService } from 'src/shared/relation/relation.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class CoworkerRelationService {
   constructor(
     private readonly coworkerRelationsRepository: CoworkerRelationsRepository,
     private readonly sharedRelationService: SharedRelationService,
+    private readonly userService: UserService,
   ) {}
 
   async getAllCoworkerRelations(requesterId: string) {
-    return this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
+    const coworkerIds = await this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
+    return this.userService.getUsersByIds(coworkerIds);
+  }
+
+  async getAllCoworkerRelationsByUserName(requesterId: string, username: string) {
+    const coworkerIds = await this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
+    return this.userService.getUsersByIdsAndUsername(coworkerIds, username);
   }
 
   async createCoworkerRelationRequest(

@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -21,7 +22,13 @@ export class CoworkerRelationController {
   ) {}
 
   @Get()
-  async getAllCoworkerRelationsById(@Req() { user }: RequestWithUser) {
+  async getAllCoworkerRelationsById(@Req() { user }: RequestWithUser, @Query('username') username: string) {
+    if (username) {
+      return this.coworkerRelationService.getAllCoworkerRelationsByUserName(
+        user.user_id,
+        username
+      );
+    }
     return this.coworkerRelationService.getAllCoworkerRelations(
       user.user_id,
     );

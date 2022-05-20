@@ -41,8 +41,8 @@ export class CoworkerRelationsRepository extends Repository<CoworkerRelation> {
       await this.createQueryBuilder('coworker_relations')
         .select(
           `CASE
-        WHEN requester_id = '${requester_id}' THEN requester_id
-        WHEN addressee_id = '${requester_id}' THEN addressee_id
+        WHEN requester_id = '${requester_id}' THEN addressee_id
+        WHEN addressee_id = '${requester_id}' THEN requester_id
         END
       `,
           'coworker_id',
