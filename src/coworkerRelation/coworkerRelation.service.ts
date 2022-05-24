@@ -13,14 +13,12 @@ export class CoworkerRelationService {
     private readonly userService: UserService,
   ) {}
 
-  async getAllCoworkerRelations(requesterId: string) {
-    const coworkerIds = await this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
+  async getAllApprovedCoworkerRelations(requesterId: string, username?: string) {
+    const coworkerIds = await this.coworkerRelationsRepository.findApprovedRelationsByUserId(requesterId);
+    if (username) {
+      return this.userService.getUsersByIdsAndUsername(coworkerIds, username);
+    }
     return this.userService.getUsersByIds(coworkerIds);
-  }
-
-  async getAllCoworkerRelationsByUserName(requesterId: string, username: string) {
-    const coworkerIds = await this.coworkerRelationsRepository.findAllRelationsByUserId(requesterId);
-    return this.userService.getUsersByIdsAndUsername(coworkerIds, username);
   }
 
   async createCoworkerRelationRequest(
@@ -66,18 +64,27 @@ export class CoworkerRelationService {
   }
 
   async deleteCoworkerRelation(requesterId: string, addresseeId: string) {
+    console.log(requesterId, addresseeId)
     return this.coworkerRelationsRepository
       .createQueryBuilder('coworker_relations')
       .delete()
       .from(CoworkerRelation)
-      .where('requester_id = :requester_id AND addressee_id = :addressee_id', {
+      .where('requester_id = :requesterId AND addressee_id = :addresseeId', {
         requesterId,
         addresseeId,
       })
       .orWhere(
-        'requester_id = :addressee_id AND addressee_id = :requester_id',
+        'requester_id = :addresseeId AND addressee_id = :requesterId',
         { requesterId, addresseeId },
       )
       .execute();
+  }
+
+  async getAllUsersByRequestedConnections(userId: string, username?: string) {
+    return this.coworkerRelationsRepository.findAllUsersByRequestedConnections(userId, username);
+  }
+
+  async getAllUsersByReceivedConnections(userId: string, username?: string) {
+    return this.coworkerRelationsRepository.findAllUsersByReceivedConnections(userId, username);
   }
 }

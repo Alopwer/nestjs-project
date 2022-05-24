@@ -1,10 +1,12 @@
 import { Exclude } from 'class-transformer';
 import { Card } from 'src/card/card.entity';
 import { User } from 'src/user/user.entity';
+import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,

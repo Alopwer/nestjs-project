@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, In, Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
@@ -26,8 +26,8 @@ export class UserService {
     return newUser;
   }
 
-  async getUsersByUsername(username: string) {
-    const users = await this.userRepository.find({ username: ILike(`${username}%`) });
+  async getUsersByUsername(username: string, userId: string) {
+    const users = await this.userRepository.find({ username: ILike(`${username}%`), user_id: Not(userId) });
     return users;
   }
 

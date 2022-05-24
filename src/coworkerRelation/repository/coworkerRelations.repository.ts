@@ -1,4 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
+import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { EntityRepository, FindOneOptions, Repository } from 'typeorm';
 import { CoworkerRelation } from '../coworkerRelation.entity';
 import { CowokerRelationsConditions } from '../interface/coworkerRelationsConditions';
@@ -36,7 +37,7 @@ export class CoworkerRelationsRepository extends Repository<CoworkerRelation> {
     return coworkerRelation;
   }
 
-  async findAllRelationsByUserId(requester_id: string) {
+  async findApprovedRelationsByUserId(requester_id: string) {
     const coworkerIds: Array<{ coworker_id: string }> =
       await this.createQueryBuilder('coworker_relations')
         .select(
@@ -50,5 +51,33 @@ export class CoworkerRelationsRepository extends Repository<CoworkerRelation> {
         .andWhere("status_code = 'A'")
         .getRawMany();
     return coworkerIds.map((coworkerData) => coworkerData.coworker_id);
+  }
+
+  async findAllUsersByReceivedConnections(addresseeId: string, username?: string) {
+    const query = this.createQueryBuilder('coworker_relations')
+      .select(['user_id, username, email'])
+      .innerJoin('users', 'u', 'user_id = requester_id')
+      .where(
+        'status_code = :statusCode AND addressee_id = :addresseeId',
+        { statusCode: RelationsStatusCode.Requested, addresseeId }
+      )
+    if (username) {
+      query.andWhere('username ILIKE :username', { username })
+    }
+    return query.getRawMany()
+  }
+
+  async findAllUsersByRequestedConnections(requesterId: string, username?: string) {
+    const query = this.createQueryBuilder('coworker_relations')
+      .select(['user_id, username, email'])
+      .innerJoin('users', 'u', 'user_id = addressee_id')
+      .where(
+        'status_code = :statusCode AND requester_id = :requesterId',
+        { statusCode: RelationsStatusCode.Requested, requesterId }
+      )
+    if (username) {
+      query.andWhere('username ILIKE :username', { username })
+    }
+    return query.getRawMany()
   }
 }

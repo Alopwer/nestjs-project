@@ -6,6 +6,7 @@ import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/w
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
+import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transaction';
 import { Workspace } from './workspace.entity';
 
 @Injectable()
@@ -15,22 +16,41 @@ export class WorkspaceService {
     private readonly workspaceRepository: Repository<Workspace>,
     @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
     private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
+    private readonly createWorkspaceTransaction: CreateWorkspaceTransaction
   ) {}
 
-  async getAllOwnerWorkspaces(ownerId: string): Promise<Workspace[]> {
-    return this.workspaceRepository.find({ owner_id: ownerId });
+  async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
+    const workspaces = await this.workspaceRepository.query(`
+      SELECT json_build_object(
+        'workspaceId', w.workspace_id,
+        'title', w.title,
+        'ownerId', w.owner_id,
+        'coworkers', array_remove(ARRAY_AGG(users), NULL)
+      ) FROM workspaces w
+      JOIN workspace_relations wr on wr.workspace_id = w.workspace_id
+      CROSS JOIN LATERAL (
+          SELECT user_id, username 
+          FROM users AS uc
+        WHERE uc.user_id = wr.addressee_id
+      ) AS users
+      WHERE w.owner_id = '${ownerId}' AND wr.status_code = 'A'
+      GROUP BY w.workspace_id
+    `)
+    return workspaces.map((workspaceJsonObject) => ({ ...workspaceJsonObject.json_build_object }));
   }
 
   async createWorkspace(
     ownerId: string,
     createWorkspaceDto: CreateWorkspaceDto,
   ): Promise<Workspace> {
+    if (createWorkspaceDto.coworkers.length) {
+      return this.createWorkspaceTransaction.run({ ...createWorkspaceDto, ownerId });
+    }
     const newWorkspace = this.workspaceRepository.create({
-      ...createWorkspaceDto,
+      title: createWorkspaceDto.title,
       owner_id: ownerId,
     });
-    await this.workspaceRepository.save(newWorkspace);
-    return newWorkspace;
+    return this.workspaceRepository.save(newWorkspace);
   }
 
   async updateWorkspace(
