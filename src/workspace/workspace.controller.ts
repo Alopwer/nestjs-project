@@ -36,6 +36,13 @@ export class WorkspaceController {
     return this.workspaceService.getAllOwnerWorkspaces(request.user.user_id);
   }
 
+  @Get('/shared')
+  async getAllSharedWorkspaces(
+    @Req() request: RequestWithUser,
+  ): Promise<Workspace[]> {
+    return this.workspaceService.getAllSharedWorkspaces(request.user.user_id);
+  }
+
   @Get(':id/cards')
   @UseGuards(WorkspaceMemberGuard)
   async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {

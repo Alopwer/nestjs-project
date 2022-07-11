@@ -53,6 +53,9 @@ export class WorkspaceRelationService {
         { workspaceShareCode },
       ),
     );
+    if (requesterId === addresseeId) {
+      throw new BadRequestException();
+    }
     return this.saveRelation({
       requesterId,
       addresseeId,

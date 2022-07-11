@@ -12,7 +12,7 @@ export class WorkspaceRelation {
   @JoinColumn({ name: 'addressee_id' })
   addressee: User;
 
-  @Column()
+  @PrimaryColumn()
   requester_id: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

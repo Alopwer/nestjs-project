@@ -2,12 +2,24 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
+import { User } from 'src/user/user.entity';
 import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
 import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transaction';
 import { Workspace } from './workspace.entity';
+
+export type JsonBuildObject<T> = {
+  json_build_object: T
+}
+
+export type GetWorkspaceResponse = {
+  workspaceId: string;
+  title: string;
+  ownerId: string;
+  coworkers: User[];
+}
 
 @Injectable()
 export class WorkspaceService {
@@ -20,23 +32,39 @@ export class WorkspaceService {
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
-    const workspaces = await this.workspaceRepository.query(`
-      SELECT json_build_object(
-        'workspaceId', w.workspace_id,
-        'title', w.title,
-        'ownerId', w.owner_id,
-        'coworkers', array_remove(ARRAY_AGG(users), NULL)
-      ) FROM workspaces w
-      JOIN workspace_relations wr on wr.workspace_id = w.workspace_id
-      CROSS JOIN LATERAL (
-          SELECT user_id, username 
-          FROM users AS uc
-        WHERE uc.user_id = wr.addressee_id
-      ) AS users
-      WHERE w.owner_id = '${ownerId}' AND wr.status_code = 'A'
+    return this.workspaceRepository.query(`
+      SELECT w.workspace_id,
+            w.owner_id,
+            w.title,
+            json_strip_nulls(json_agg(json_build_object('user_id', u.user_id, 'username', u.username))) coworkers
+      FROM workspaces w
+      INNER JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
+      INNER JOIN users u ON u.user_id = wr.addressee_id
+      WHERE w.owner_id = '${ownerId}'
+      AND wr.status_code = 'A'
       GROUP BY w.workspace_id
     `)
-    return workspaces.map((workspaceJsonObject) => ({ ...workspaceJsonObject.json_build_object }));
+  }
+
+  async getAllSharedWorkspaces(userId: string): Promise<any> {
+    return this.workspaceRepository.query(`
+      SELECT w.workspace_id,
+          w.title,
+          w.owner_id,
+          json_strip_nulls(json_agg(json_build_object('user_id', u.user_id, 'username', u.username))) coworkers
+      FROM workspaces w
+      INNER JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
+      INNER JOIN users u ON u.user_id = wr.addressee_id
+      WHERE w.owner_id != '${userId}'
+      AND wr.status_code = 'A'
+      AND w.workspace_id in
+      (SELECT w1.workspace_id
+        FROM workspaces w1
+        INNER JOIN workspace_relations wr1 ON wr1.workspace_id = w1.workspace_id
+        WHERE wr1.addressee_id = '${userId}' )
+      AND u.user_id != '${userId}'
+      GROUP BY w.workspace_id
+    `)
   }
 
   async createWorkspace(
