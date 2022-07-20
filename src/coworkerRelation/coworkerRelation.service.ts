@@ -34,7 +34,7 @@ export class CoworkerRelationService {
         addresseeId,
       );
     if (coworkerRelationStatus) {
-      await this.sharedRelationService.checkRelationStatus(
+      this.sharedRelationService.checkRelationStatus(
         coworkerRelationStatus.status_code,
       );
     }
@@ -50,15 +50,12 @@ export class CoworkerRelationService {
     requesterId: string,
     addresseeId: string,
   ) {
-    const findConditions = {
-      requester_id: requesterId,
-      addressee_id: addresseeId,
-      status_code: RelationsStatusCode.Requested,
-    };
     const coworkerRelation =
-      await this.coworkerRelationsRepository.findOneRelationOrFail(
-        findConditions,
-      );
+      await this.coworkerRelationsRepository.findOneRelationOrFail({
+        requester_id: requesterId,
+        addressee_id: addresseeId,
+        status_code: RelationsStatusCode.Requested,
+      });
     coworkerRelation.status_code = RelationsStatusCode.Accepted;
     return this.coworkerRelationsRepository.save(coworkerRelation);
   }

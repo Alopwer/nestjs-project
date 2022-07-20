@@ -1,0 +1,11 @@
+export const selectAllOwnerWorkspacesQuery = (ownerId) => `
+  SELECT w.workspace_id,
+      w.owner_id,
+      w.title,
+      json_strip_nulls(COALESCE(json_agg(json_build_object('user_id', u.user_id, 'username', u.username)) FILTER (WHERE wr.status_code = 'A'), '[]')) coworkers
+  FROM workspaces w
+  LEFT JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
+  LEFT JOIN users u ON u.user_id = wr.addressee_id
+  WHERE w.owner_id = '${ownerId}'
+  GROUP BY w.workspace_id
+`

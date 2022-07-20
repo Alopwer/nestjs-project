@@ -14,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
 import { RequestWithUser } from 'src/auth/interface/requestWithUser.interface';
 import { CoworkerRelationService } from './coworkerRelation.service';
 
+// create a guard to check if requesterId !== addresseeId
 @Controller('relations/coworkers')
 @UseGuards(JwtAuthGuard)
 export class CoworkerRelationController {
@@ -38,7 +39,10 @@ export class CoworkerRelationController {
   }
 
   @Get('approved')
-  async getAllApprovedCoworkerRelationsById(@Req() { user }: RequestWithUser, @Query('username') username: string) {
+  async getAllApprovedCoworkerRelationsById(
+    @Req() { user }: RequestWithUser,
+    @Query('username') username: string
+  ) {
     return this.coworkerRelationService.getAllApprovedCoworkerRelations(
       user.user_id,
       username

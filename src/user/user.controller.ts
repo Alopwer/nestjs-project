@@ -12,6 +12,6 @@ export class UserController {
 
   @Get()
   getUsersByUserName(@Req() { user }: RequestWithUser, @Query('username') username: string) {
-    return this.userService.getUsersByUsername(username, user.user_id)
+    return this.userService.getUsersByUsernameWithoutRequester(username, user.user_id)
   }
 }

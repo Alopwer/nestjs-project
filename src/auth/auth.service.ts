@@ -27,27 +27,23 @@ export class AuthService {
     const hashedPassword = await this.sharedService.hashPassword(
       registrationData.password,
     );
-    try {
-      const createdUser = this.userService.createUser({
-        ...registrationData,
-        password: hashedPassword,
+    return this.userService.createUser({
+      ...registrationData,
+      password: hashedPassword,
+    })
+      .catch((_error) => {
+        throw new HttpException(
+          'Something went wrong',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       });
-      return createdUser;
-    } catch (error) {
-      throw new HttpException(
-        'Something went wrong',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 
   getCookieWithJwtTokens(userId: string) {
     const payload: TokenPayload = { userId };
-    const accessToken = this.getAccessTokenCookie(payload);
-    const refreshToken = this.getRefreshTokenCookie(payload);
     return {
-      accessToken,
-      refreshToken,
+      accessToken: this.getAccessTokenCookie(payload),
+      refreshToken: this.getRefreshTokenCookie(payload),
     };
   }
 

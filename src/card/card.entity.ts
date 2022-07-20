@@ -29,6 +29,7 @@ export class Card {
   workspace: Workspace;
 
   @Column()
+  @Exclude()
   card_data_id: string;
 
   @OneToOne(() => CardData, (card_data) => card_data.card, { cascade: true })

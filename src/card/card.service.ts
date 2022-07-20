@@ -75,7 +75,7 @@ export class CardService {
   }
 
   async getAllWorkspaceCards(workspaceId: string): Promise<Card[]> {
-    return this.cardRepository.find({ where: { workspace_id: workspaceId } });
+    return this.cardRepository.find({ where: { workspace_id: workspaceId }, relations: ['card_data'] });
   }
 
   async getAllCardsByOwner(ownerId: string): Promise<Card[]> {

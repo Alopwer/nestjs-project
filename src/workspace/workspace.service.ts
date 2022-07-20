@@ -7,6 +7,8 @@ import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/w
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
+import { selectAllOwnerWorkspacesQuery } from './query/selectAllOwnerWorkspaces.query';
+import { selectAllSharedWorkspacesQuery } from './query/selectAllSharedWorkspaces.query';
 import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transaction';
 import { Workspace } from './workspace.entity';
 
@@ -32,39 +34,11 @@ export class WorkspaceService {
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
-    return this.workspaceRepository.query(`
-      SELECT w.workspace_id,
-            w.owner_id,
-            w.title,
-            json_strip_nulls(json_agg(json_build_object('user_id', u.user_id, 'username', u.username))) coworkers
-      FROM workspaces w
-      INNER JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
-      INNER JOIN users u ON u.user_id = wr.addressee_id
-      WHERE w.owner_id = '${ownerId}'
-      AND wr.status_code = 'A'
-      GROUP BY w.workspace_id
-    `)
+    return this.workspaceRepository.query(selectAllOwnerWorkspacesQuery(ownerId))
   }
-
+  // TODO: modify the query
   async getAllSharedWorkspaces(userId: string): Promise<any> {
-    return this.workspaceRepository.query(`
-      SELECT w.workspace_id,
-          w.title,
-          w.owner_id,
-          json_strip_nulls(json_agg(json_build_object('user_id', u.user_id, 'username', u.username))) coworkers
-      FROM workspaces w
-      INNER JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
-      INNER JOIN users u ON u.user_id = wr.addressee_id
-      WHERE w.owner_id != '${userId}'
-      AND wr.status_code = 'A'
-      AND w.workspace_id in
-      (SELECT w1.workspace_id
-        FROM workspaces w1
-        INNER JOIN workspace_relations wr1 ON wr1.workspace_id = w1.workspace_id
-        WHERE wr1.addressee_id = '${userId}' )
-      AND u.user_id != '${userId}'
-      GROUP BY w.workspace_id
-    `)
+    return this.workspaceRepository.query(selectAllSharedWorkspacesQuery(userId))
   }
 
   async createWorkspace(
@@ -103,16 +77,14 @@ export class WorkspaceService {
   }
 
   async checkMember(userId: string, workspaceId: string) {
-    const workspace = await this.workspaceRepository.findOne(workspaceId);
-    const workspaceRelation = await this.workspaceRelationsRepository
+    return this.workspaceRelationsRepository
       .createQueryBuilder('workspace_relations')
       .where('addressee_id = :userId', { userId })
       .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', {
-        workspaceId: workspace.workspace_id,
+        workspaceId,
         statusCode: RelationsStatusCode.Accepted,
       })
       .getOne();
-    return workspaceRelation;
   }
 
   async getWorkspaceShareCode(workspaceId: string, requesterId: string) {

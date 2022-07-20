@@ -36,13 +36,11 @@ export class WorkspaceRelationController {
     );
   }
 
-  @Get(':id/pending')
-  async getAllPendingWorkspaceRelationRequestsById(
-    @Req() { user }: RequestWithUser,
-    @Param('id', ParseUUIDPipe) workspaceId: string,
+  @Get('/pending')
+  async getPendingWorkspaceRelationRequestsByUserId(
+    @Req() { user }: RequestWithUser
   ) {
-    return this.workspaceRelationService.getAllPendingWorkspaceRelationRequestsById(
-      workspaceId,
+    return this.workspaceRelationService.getPendingWorkspaceRelationRequestsByUserId(
       user.user_id,
     );
   }

@@ -4,10 +4,14 @@ export class RegisterDto {
   @IsString()
   username: string;
 
-  @IsEmail()
+  @IsEmail(null, {
+    message: 'Email should be valid'
+  })
   email: string;
 
   @IsString()
-  @MinLength(8)
+  @MinLength(8, {
+    message: 'Password should consist of 8 characters at least'
+  })
   password: string;
 }

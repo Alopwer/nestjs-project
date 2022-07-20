@@ -21,7 +21,7 @@ export class CreateWorkspaceTransaction extends BaseTransaction<ExtendedCreateWo
       workspace_id: createdWorkspace.workspace_id,
       requester_id: data.ownerId,
       addressee_id: userId,
-      status_code: RelationsStatusCode.Accepted
+      status_code: RelationsStatusCode.Requested
     }))
     const workspaceRelations = manager.create(WorkspaceRelation, workspaceRelationsData);
     await manager.save(workspaceRelations)

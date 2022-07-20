@@ -4,18 +4,16 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Not, Repository } from 'typeorm';
+import { ILike, In, Not } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
-import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { DecodedToken } from 'src/auth/interface/decodedToken.interface';
+import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -26,39 +24,24 @@ export class UserService {
     return newUser;
   }
 
-  async getUsersByUsername(username: string, userId: string) {
-    const users = await this.userRepository.find({ username: ILike(`${username}%`), user_id: Not(userId) });
-    return users;
+  async getUserById(userId: string) {
+    return this.userRepository.findUserById(userId);
   }
 
   async getUserByEmail(email: string) {
-    const user = await this.userRepository.findOne({ email });
-    if (user) {
-      return user;
-    }
-    throw new HttpException(
-      'User with this email does not exist',
-      HttpStatus.NOT_FOUND,
-    );
-  }
-
-  async getUserById(userId: string) {
-    const user = await this.userRepository.findOne({ user_id: userId });
-    if (user) {
-      return user;
-    }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    return this.userRepository.findUserByEmail(email);
   }
 
   async getUsersByIds(userIds: string[]) {
-    return this.userRepository.find({ user_id: In(userIds) });
+    return this.userRepository.findUsersByIds(userIds);
+  }
+
+  async getUsersByUsernameWithoutRequester(username: string, userId: string) {
+    return this.userRepository.findUsersByUsernameWithoutRequester(username, userId);
   }
 
   async getUsersByIdsAndUsername(userIds: string[], username: string) {
-    return this.userRepository.find({ user_id: In(userIds), username: ILike(`${username}%`) });
+    return this.userRepository.findUsersByIdsAndUsername(userIds, username);
   }
 
   async checkPassword(enteredPwd: string, userPwd: string) {

@@ -18,29 +18,25 @@ export class WorkspaceRelationService {
   ) {}
 
   async getAllWorkspaceRelationMembers(
-    workspace_id: string,
-    owner_id: string
+    workspaceId: string,
+    ownerId: string
   ) {
     const memberIds: Array<{ member_id: string }> =
       await this.workspaceRelationsRepository.createQueryBuilder('workspace_relations')
         .select(['addressee_id as member_id'])
-        .andWhere("workspace_id = :workspace_id AND status_code = :status_code", { workspace_id, status_code: RelationsStatusCode.Accepted })
+        .andWhere("workspace_id = :workspaceId AND status_code = :statusCode", { workspaceId, statusCode: RelationsStatusCode.Accepted })
         .getRawMany();
-    return [owner_id, ...memberIds.map((memberData) => memberData.member_id)];
+    return [ownerId, ...memberIds.map((memberData) => memberData.member_id)];
   }
 
-  async getAllPendingWorkspaceRelationRequestsById(
-    workspace_id: string,
-    addressee_id: string,
+  async getPendingWorkspaceRelationRequestsByUserId(
+    addresseeId: string,
   ) {
-    return this.workspaceRelationsRepository.find({
-      select: ['workspace_id', 'requester_id'],
-      where: {
-        workspace_id,
-        addressee_id,
-        status_code: RelationsStatusCode.Requested,
-      },
-    });
+    return this.workspaceRelationsRepository.createQueryBuilder('workspace_relations')
+      .select(["title", "owner_id", "w.workspace_id as workspace_id"])
+      .innerJoin("workspaces", "w", "w.workspace_id = workspace_relations.workspace_id")
+      .where("addressee_id = :addresseeId AND status_code = :statusCode", { addresseeId, statusCode: RelationsStatusCode.Requested })
+      .getRawMany<{ title: string, owner_id: string, workspace_id: string }>();
   }
 
   async createApprovedWorkspaceRelation({
@@ -78,7 +74,7 @@ export class WorkspaceRelationService {
         workspaceId,
       );
     if (workspaceRelationStatus) {
-      await this.sharedRelationService.checkRelationStatus(
+      this.sharedRelationService.checkRelationStatus(
         workspaceRelationStatus.status_code,
       );
     }
@@ -106,15 +102,11 @@ export class WorkspaceRelationService {
     return this.workspaceRelationsRepository.save(coworkerRelation);
   }
 
-  async deleteWorkspaceRelation(workspaceId: string, requesterId: string) {
-    return this.workspaceRelationsRepository
-      .createQueryBuilder('workspace_relations')
-      .delete()
-      .from(WorkspaceRelation)
-      .where('requester_id = :requesterId', { requesterId })
-      .orWhere('addressee_id = :requesterId', { requesterId })
-      .andWhere('workspace_id = :workspaceId', { workspaceId })
-      .execute();
+  async deleteWorkspaceRelation(workspaceId: string, addresseeId: string) {
+    return this.workspaceRelationsRepository.delete({
+      workspace_id: workspaceId,
+      addressee_id: addresseeId
+    })
   }
 
   async saveRelation({

@@ -40,12 +40,12 @@ export class CoworkerRelationsRepository extends Repository<CoworkerRelation> {
   async findApprovedRelationsByUserId(requester_id: string) {
     const coworkerIds: Array<{ coworker_id: string }> =
       await this.createQueryBuilder('coworker_relations')
-        .select(
-          `CASE
-        WHEN requester_id = '${requester_id}' THEN addressee_id
-        WHEN addressee_id = '${requester_id}' THEN requester_id
-        END
-      `,
+        .select(`
+          CASE
+            WHEN requester_id = '${requester_id}' THEN addressee_id
+            WHEN addressee_id = '${requester_id}' THEN requester_id
+          END
+        `,
           'coworker_id',
         )
         .andWhere("status_code = 'A'")

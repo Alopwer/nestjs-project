@@ -12,7 +12,7 @@ export class RefreshTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest() as RequestWithUser;
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const refreshToken = request.cookies.RefreshToken;
     const decodedToken = await this.authService.verifyToken({
       token: refreshToken,

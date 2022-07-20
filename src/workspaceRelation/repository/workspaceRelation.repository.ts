@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { EntityRepository, FindOneOptions, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { WorkspaceRelation } from '../workspaceRelation.entity';
 
 @EntityRepository(WorkspaceRelation)

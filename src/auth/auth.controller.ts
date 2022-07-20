@@ -60,7 +60,6 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   authenticate(@Req() request: RequestWithUser) {
-    const user = request.user;
-    return user;
+    return request.user;
   }
 }
