@@ -4,7 +4,7 @@ export class RegisterDto {
   @IsString()
   username: string;
 
-  @IsEmail(null, {
+  @IsEmail({}, {
     message: 'Email should be valid'
   })
   email: string;

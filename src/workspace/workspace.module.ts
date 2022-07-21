@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
-import { CardModule } from 'src/card/card.module';
+import { CollectionModule } from 'src/collection/collection.module';
 import { UserModule } from 'src/user/user.module';
 import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
 import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transaction';
@@ -13,7 +13,7 @@ import { WorkspaceService } from './workspace.service';
   imports: [
     TypeOrmModule.forFeature([Workspace, WorkspaceRelationsRepository]),
     UserModule,
-    CardModule,
+    CollectionModule,
     AuthModule
   ],
   controllers: [WorkspaceController],

@@ -1,9 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class CreateCardDto {
-  @IsString()
-  title: string;
-
+export class UpdateCollectionDataDto {
   @IsString()
   @IsOptional()
   description?: string;

@@ -1,13 +1,12 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom, map } from 'rxjs';
+import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { SharedRelationService } from 'src/shared/relation/relation.service';
 import { ICreateApprovedWorkspaceRelation } from './interface/createApprovedWorkspaceRelation.interface';
 import { ICreateWorkspaceRelation } from './interface/createWorkspaceRelation.interface';
 import { IGetDataByWorkspaceShareCode } from './interface/getDataByWorkspaceShareCode.interface';
 import { WorkspaceRelationsRepository } from './repository/workspaceRelation.repository';
-import { WorkspaceRelation } from './workspaceRelation.entity';
 
 @Injectable()
 export class WorkspaceRelationService {
@@ -16,18 +15,6 @@ export class WorkspaceRelationService {
     private readonly sharedRelationService: SharedRelationService,
     @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
   ) {}
-
-  async getAllWorkspaceRelationMembers(
-    workspaceId: string,
-    ownerId: string
-  ) {
-    const memberIds: Array<{ member_id: string }> =
-      await this.workspaceRelationsRepository.createQueryBuilder('workspace_relations')
-        .select(['addressee_id as member_id'])
-        .andWhere("workspace_id = :workspaceId AND status_code = :statusCode", { workspaceId, statusCode: RelationsStatusCode.Accepted })
-        .getRawMany();
-    return [ownerId, ...memberIds.map((memberData) => memberData.member_id)];
-  }
 
   async getPendingWorkspaceRelationRequestsByUserId(
     addresseeId: string,
@@ -47,10 +34,21 @@ export class WorkspaceRelationService {
       this.linkClient.send<IGetDataByWorkspaceShareCode>(
         'get_data_by_workspace_share_code',
         { workspaceShareCode },
-      ),
-    );
+      ).pipe(
+        //TODO: check why wrong error code???
+        catchError((err) => { throw new Error(err) }))
+      )
     if (requesterId === addresseeId) {
       throw new BadRequestException();
+    }
+    const workspaceRelation = await this.workspaceRelationsRepository.findOne({
+      requester_id: requesterId,
+      addressee_id: addresseeId,
+      workspace_id: workspaceId,
+      status_code: RelationsStatusCode.Accepted
+    })
+    if (workspaceRelation) {
+      throw new BadRequestException('You are already in workspace');
     }
     return this.saveRelation({
       requesterId,

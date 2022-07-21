@@ -5,21 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RequestWithUser } from 'src/auth/interface/requestWithUser.interface';
-import { CardService } from '../card.service';
+import { CollectionService } from '../collection.service';
 
 @Injectable()
-export class CardMemberGuard implements CanActivate {
-  constructor(private readonly cardService: CardService) {}
+export class CollectionMemberGuard implements CanActivate {
+  constructor(private readonly collectionService: CollectionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest() as RequestWithUser;
     const userId = request.user.user_id;
-    const userIsOwner = await this.cardService.checkOwner(
+    const userIsOwner = await this.collectionService.checkOwner(
       userId,
       request.params.id,
     );
     if (userIsOwner) return true;
-    const userIsPartOfWorkspace = await this.cardService.checkMember(
+    const userIsPartOfWorkspace = await this.collectionService.checkMember(
       userId,
       request.params.id,
     );

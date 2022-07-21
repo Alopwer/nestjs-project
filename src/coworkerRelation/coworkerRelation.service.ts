@@ -61,7 +61,6 @@ export class CoworkerRelationService {
   }
 
   async deleteCoworkerRelation(requesterId: string, addresseeId: string) {
-    console.log(requesterId, addresseeId)
     return this.coworkerRelationsRepository
       .createQueryBuilder('coworker_relations')
       .delete()

@@ -8,12 +8,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CardData } from './cardData.entity';
+import { CollectionData } from './collectionData.entity';
 
-@Entity('cards')
-export class Card {
+@Entity('collections')
+export class Collection {
   @PrimaryGeneratedColumn('uuid')
-  card_id: string;
+  collection_id: string;
 
   @Column()
   title: string;
@@ -22,7 +22,7 @@ export class Card {
   @Exclude()
   workspace_id: string;
 
-  @ManyToOne(() => Workspace, (workspace) => workspace.cards, {
+  @ManyToOne(() => Workspace, (workspace) => workspace.collections, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'workspace_id' })
@@ -30,9 +30,9 @@ export class Card {
 
   @Column()
   @Exclude()
-  card_data_id: string;
+  collection_data_id: string;
 
-  @OneToOne(() => CardData, (card_data) => card_data.card, { cascade: true })
-  @JoinColumn({ name: 'card_data_id' })
-  card_data: CardData;
+  @OneToOne(() => CollectionData, (collection_data) => collection_data.collection, { cascade: true })
+  @JoinColumn({ name: 'collection_data_id' })
+  collection_data: CollectionData;
 }

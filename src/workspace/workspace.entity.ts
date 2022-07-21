@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Card } from 'src/card/card.entity';
+import { Collection } from 'src/collection/collection.entity';
 import { User } from 'src/user/user.entity';
 import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import {
@@ -27,6 +27,6 @@ export class Workspace {
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  @OneToMany(() => Card, (card) => card.workspace)
-  cards: Card[];
+  @OneToMany(() => Collection, (collection) => collection.workspace)
+  collections: Collection[];
 }

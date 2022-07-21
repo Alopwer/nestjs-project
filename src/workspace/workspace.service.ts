@@ -7,8 +7,8 @@ import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/w
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
-import { selectAllOwnerWorkspacesQuery } from './query/selectAllOwnerWorkspaces.query';
-import { selectAllSharedWorkspacesQuery } from './query/selectAllSharedWorkspaces.query';
+import { allOwnerWorkspacesQuery } from './query/allOwnerWorkspaces.query';
+import { allSharedWorkspacesQuery } from './query/allSharedWorkspaces.query';
 import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transaction';
 import { Workspace } from './workspace.entity';
 
@@ -34,11 +34,11 @@ export class WorkspaceService {
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
-    return this.workspaceRepository.query(selectAllOwnerWorkspacesQuery(ownerId))
+    return this.workspaceRepository.query(allOwnerWorkspacesQuery, [ownerId])
   }
-  // TODO: modify the query
+
   async getAllSharedWorkspaces(userId: string): Promise<any> {
-    return this.workspaceRepository.query(selectAllSharedWorkspacesQuery(userId))
+    return this.workspaceRepository.query(allSharedWorkspacesQuery, [userId])
   }
 
   async createWorkspace(

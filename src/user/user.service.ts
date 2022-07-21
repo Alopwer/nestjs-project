@@ -23,7 +23,7 @@ export class UserService {
     await this.userRepository.save(newUser);
     return newUser;
   }
-
+  // TODO: remove the methods and set userRepository in other services
   async getUserById(userId: string) {
     return this.userRepository.findUserById(userId);
   }

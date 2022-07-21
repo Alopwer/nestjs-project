@@ -1,4 +1,4 @@
-export const selectAllOwnerWorkspacesQuery = (ownerId) => `
+export const allOwnerWorkspacesQuery = `
   SELECT w.workspace_id,
       w.owner_id,
       w.title,
@@ -6,6 +6,6 @@ export const selectAllOwnerWorkspacesQuery = (ownerId) => `
   FROM workspaces w
   LEFT JOIN workspace_relations wr ON wr.workspace_id = w.workspace_id
   LEFT JOIN users u ON u.user_id = wr.addressee_id
-  WHERE w.owner_id = '${ownerId}'
+  WHERE w.owner_id = $1
   GROUP BY w.workspace_id
 `

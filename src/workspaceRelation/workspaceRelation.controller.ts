@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -24,18 +25,6 @@ export class WorkspaceRelationController {
     private readonly workspaceRelationService: WorkspaceRelationService,
   ) {}
 
-  @Get(':id/users')
-  @UseGuards(WorkspaceOwnershipGuard)
-  async getAllWorkspaceRelationMembers(
-    @Req() { user }: RequestWithUser,
-    @Param('id', ParseUUIDPipe) workspaceId: string,
-  ) {
-    return this.workspaceRelationService.getAllWorkspaceRelationMembers(
-      workspaceId,
-      user.user_id,
-    );
-  }
-
   @Get('/pending')
   async getPendingWorkspaceRelationRequestsByUserId(
     @Req() { user }: RequestWithUser
@@ -50,6 +39,9 @@ export class WorkspaceRelationController {
     @Req() { user }: RequestWithUser,
     @Query('workspaceShareCode') workspaceShareCode: string,
   ) {
+    if (!workspaceShareCode) {
+      throw new BadRequestException('No share code provided');
+    }
     return this.workspaceRelationService.createApprovedWorkspaceRelation({
       addresseeId: user.user_id,
       workspaceShareCode,

@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class UpdateCardDto {
+export class UpdateCollectionDto {
   @IsString()
   title: string;
 }

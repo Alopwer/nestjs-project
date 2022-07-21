@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
 import { RequestWithUser } from 'src/auth/interface/requestWithUser.interface';
-import { CardService } from 'src/card/card.service';
-import { CreateCardDto } from 'src/card/dto/createCard.dto';
+import { CollectionService } from 'src/collection/collection.service';
+import { CreateCollectionDto } from 'src/collection/dto/createCollection.dto';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
 import { WorkspaceMemberGuard } from './guard/workspaceMember.guard';
@@ -26,7 +26,7 @@ import { WorkspaceService } from './workspace.service';
 export class WorkspaceController {
   constructor(
     private readonly workspaceService: WorkspaceService,
-    private readonly cardService: CardService,
+    private readonly collectionService: CollectionService,
   ) {}
 
   @Get()
@@ -43,10 +43,10 @@ export class WorkspaceController {
     return this.workspaceService.getAllSharedWorkspaces(request.user.user_id);
   }
 
-  @Get(':id/cards')
+  @Get(':id/collections')
   @UseGuards(WorkspaceMemberGuard)
-  async getAllWorkspaceCards(@Param('id', ParseUUIDPipe) workspaceId: string) {
-    return this.cardService.getAllWorkspaceCards(workspaceId);
+  async getAllWorkspaceCollections(@Param('id', ParseUUIDPipe) workspaceId: string) {
+    return this.collectionService.getAllWorkspaceCollections(workspaceId);
   }
 
   @Get(':id/link')
@@ -72,15 +72,15 @@ export class WorkspaceController {
     );
   }
 
-  @Post(':id/cards')
+  @Post(':id/collections')
   @UseGuards(WorkspaceMemberGuard)
-  async createCard(
+  async createCollection(
     @Param('id', ParseUUIDPipe) workspace_id: string,
-    @Body() createCardDto: CreateCardDto,
+    @Body() createCollectionDto: CreateCollectionDto,
   ) {
-    return this.cardService.createCard({
+    return this.collectionService.createCollection({
       workspace_id,
-      ...createCardDto,
+      ...createCollectionDto,
     });
   }
 
