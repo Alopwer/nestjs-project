@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { Workspace } from 'src/workspace/workspace.entity';
-import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
+import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import { CollectionController } from './collection.controller';
 import { Collection } from './collection.entity';
 import { CollectionService } from './collection.service';
@@ -14,7 +14,7 @@ import { CollectionData } from './collectionData.entity';
     TypeOrmModule.forFeature([
       Collection,
       CollectionData,
-      WorkspaceRelationsRepository,
+      WorkspaceRelation,
       Workspace,
     ]),
     UserModule,

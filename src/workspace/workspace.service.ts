@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { User } from 'src/user/user.entity';
-import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
+import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import { Repository } from 'typeorm';
 import { CreateWorkspaceDto } from './dto/createWorkspaceDto';
 import { UpdateWorkspaceDto } from './dto/updateWorkspaceDto';
@@ -29,8 +29,9 @@ export class WorkspaceService {
     @InjectRepository(Workspace)
     private readonly workspaceRepository: Repository<Workspace>,
     @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
-    private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
-    private readonly createWorkspaceTransaction: CreateWorkspaceTransaction
+    private readonly createWorkspaceTransaction: CreateWorkspaceTransaction,
+    @InjectRepository(WorkspaceRelation)
+    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
@@ -45,22 +46,15 @@ export class WorkspaceService {
     ownerId: string,
     createWorkspaceDto: CreateWorkspaceDto,
   ): Promise<Workspace> {
-    if (createWorkspaceDto.coworkers.length) {
-      return this.createWorkspaceTransaction.run({ ...createWorkspaceDto, ownerId });
-    }
-    const newWorkspace = this.workspaceRepository.create({
-      title: createWorkspaceDto.title,
-      owner_id: ownerId,
-    });
-    return this.workspaceRepository.save(newWorkspace);
+    return this.createWorkspaceTransaction.run({ ...createWorkspaceDto, ownerId });
   }
 
   async updateWorkspace(
-    id: string,
+    workspaceId: string,
     updateWorkspaceDto: UpdateWorkspaceDto,
   ): Promise<Workspace> {
-    await this.workspaceRepository.update(id, updateWorkspaceDto);
-    return this.workspaceRepository.findOne(id);
+    await this.workspaceRepository.update(workspaceId, updateWorkspaceDto);
+    return this.workspaceRepository.findOneBy({ workspace_id: workspaceId });
   }
 
   async deleteWorkspace(id: string): Promise<string> {
@@ -69,7 +63,7 @@ export class WorkspaceService {
   }
 
   async checkOwner(userId: string, workspaceId: string): Promise<boolean> {
-    const workspace = await this.workspaceRepository.findOne(workspaceId);
+    const workspace = await this.workspaceRepository.findOneBy({ workspace_id: workspaceId });
     if (!workspace) {
       throw new NotFoundException();
     }
@@ -77,7 +71,7 @@ export class WorkspaceService {
   }
 
   async checkMember(userId: string, workspaceId: string) {
-    return this.workspaceRelationsRepository
+    return this.workspaceRelationRepository
       .createQueryBuilder('workspace_relations')
       .where('addressee_id = :userId', { userId })
       .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', {

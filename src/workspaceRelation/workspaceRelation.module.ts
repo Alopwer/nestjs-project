@@ -3,13 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { WorkspaceModule } from 'src/workspace/workspace.module';
-import { WorkspaceRelationsRepository } from './repository/workspaceRelation.repository';
 import { WorkspaceRelationController } from './workspaceRelation.controller';
+import { WorkspaceRelation } from './workspaceRelation.entity';
 import { WorkspaceRelationService } from './workspaceRelation.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([WorkspaceRelationsRepository]),
+    TypeOrmModule.forFeature([WorkspaceRelation]),
     UserModule,
     AuthModule,
     WorkspaceModule,

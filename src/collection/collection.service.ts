@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RelationsStatusCode } from 'src/shared/relation/enum/relationsStatusCode.enum';
 import { Workspace } from 'src/workspace/workspace.entity';
-import { WorkspaceRelationsRepository } from 'src/workspaceRelation/repository/workspaceRelation.repository';
+import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import { In, Repository } from 'typeorm';
 import { Collection } from './collection.entity';
 import { CollectionData } from './collectionData.entity';
@@ -19,7 +19,8 @@ export class CollectionService {
     private readonly workspaceRepository: Repository<Workspace>,
     @InjectRepository(CollectionData)
     private readonly collectionDataRepository: Repository<CollectionData>,
-    private readonly workspaceRelationsRepository: WorkspaceRelationsRepository,
+    @InjectRepository(WorkspaceRelation)
+    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>
   ) {}
 
   async createCollection(createCollectionData: CreateCollectionData): Promise<Collection> {
@@ -36,7 +37,9 @@ export class CollectionService {
 
   async updateCollection(collectionId: string, updateCollectionDto: UpdateCollectionDto) {
     await this.collectionRepository.update(collectionId, updateCollectionDto);
-    return this.collectionRepository.findOne(collectionId);
+    return this.collectionRepository.findOneBy({
+      collection_id: collectionId
+    });
   }
 
   async updateCollectionData(
@@ -44,7 +47,9 @@ export class CollectionService {
     updateCollectionDataDto: UpdateCollectionDataDto,
   ) {
     await this.collectionDataRepository.update(collectionDataId, updateCollectionDataDto);
-    return this.collectionDataRepository.findOne(collectionDataId);
+    return this.collectionDataRepository.findOneBy({
+      collection_data_id: collectionDataId
+    });
   }
 
   async deleteCollection(collectionId: string) {
@@ -53,17 +58,19 @@ export class CollectionService {
   }
 
   async checkOwner(userId: string, collectionId: string) {
-    const collection = await this.collectionRepository.findOne(collectionId, {
-      relations: ['workspace'],
+    const collection = await this.collectionRepository.findOne({
+      where: { collection_id: collectionId },
+      relations: ['workspace']
     });
     return collection.workspace.owner_id === userId;
   }
 
   async checkMember(userId: string, collectionId: string) {
-    const collection = await this.collectionRepository.findOne(collectionId, {
-      relations: ['workspace'],
+    const collection = await this.collectionRepository.findOne({
+      where: { collection_id: collectionId },
+      relations: ['workspace']
     });
-    const workspaceRelation = await this.workspaceRelationsRepository
+    const workspaceRelation = await this.workspaceRelationRepository
       .createQueryBuilder('workspace_relations')
       .where('addressee_id = :userId', { userId })
       .andWhere('workspace_id = :workspaceId AND status_code = :statusCode', {
@@ -79,7 +86,7 @@ export class CollectionService {
   }
 
   async getAllCollectionsByOwner(ownerId: string): Promise<Collection[]> {
-    const workspacesByOwner = await this.workspaceRepository.find({
+    const workspacesByOwner = await this.workspaceRepository.findBy({
       owner_id: ownerId,
     });
     const workspacesIdsByOwner = workspacesByOwner.map(

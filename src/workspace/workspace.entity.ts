@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { Collection } from 'src/collection/collection.entity';
+import { PublicFile } from 'src/files/publicFile.entity';
 import { User } from 'src/user/user.entity';
 import { WorkspaceRelation } from 'src/workspaceRelation/workspaceRelation.entity';
 import {
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -29,4 +31,16 @@ export class Workspace {
 
   @OneToMany(() => Collection, (collection) => collection.workspace)
   collections: Collection[];
+
+  @Column({
+    nullable: true
+  })
+  @Exclude()
+  cover_image_id: string;
+
+  @OneToOne(() => PublicFile, {
+    nullable: true
+  })
+  @JoinColumn({ name: 'cover_image_id' })
+  cover_image?: PublicFile;
 }

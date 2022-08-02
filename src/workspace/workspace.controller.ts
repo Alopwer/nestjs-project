@@ -8,8 +8,12 @@ import {
   Post,
   Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FormDataRequest } from 'nestjs-form-data';
 import { JwtAuthGuard } from 'src/auth/guard/jwtAuth.guard';
 import { RequestWithUser } from 'src/auth/interface/requestWithUser.interface';
 import { CollectionService } from 'src/collection/collection.service';
@@ -62,6 +66,7 @@ export class WorkspaceController {
   }
 
   @Post()
+  @FormDataRequest()
   async createWorkspace(
     @Req() request: RequestWithUser,
     @Body() createWorkspaceDto: CreateWorkspaceDto,

@@ -1,10 +1,10 @@
-import { Connection, EntityManager, QueryRunner } from 'typeorm';
+import { DataSource, EntityManager, QueryRunner } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export abstract class BaseTransaction<TransactionInput, TransactionOutput> {
   protected constructor (
-    private readonly connection: Connection,
+    private readonly dataSource: DataSource,
   ) {}
 
   protected abstract execute (
@@ -13,7 +13,7 @@ export abstract class BaseTransaction<TransactionInput, TransactionOutput> {
   ): Promise<TransactionOutput>;
 
   private async createRunner (): Promise<QueryRunner> {
-    return this.connection.createQueryRunner();
+    return this.dataSource.createQueryRunner();
   }
 
   async run (data: TransactionInput): Promise<TransactionOutput> {
@@ -27,6 +27,7 @@ export abstract class BaseTransaction<TransactionInput, TransactionOutput> {
       return result;
     } catch(error) {
       await queryRunner.rollbackTransaction();
+      console.log(error)
       throw new Error('Transaction failed');
     } finally {
       await queryRunner.release();

@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from 'src/user/user.module';
 import { CoworkerRelationController } from './coworkerRelation.controller';
 import { CoworkerRelationService } from './coworkerRelation.service';
-import { CoworkerRelationsRepository } from './repository/coworkerRelations.repository';
 import { AuthModule } from 'src/auth/auth.module';
+import { CoworkerRelation } from './coworkerRelation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CoworkerRelationsRepository]),
+    TypeOrmModule.forFeature([CoworkerRelation]),
     UserModule,
     AuthModule,
   ],

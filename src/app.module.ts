@@ -13,11 +13,14 @@ import { ExceptionsLoggerFilter } from './utils/exceptionLogger.filter';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.module';
 import { ClientProxy } from '@nestjs/microservices';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env'],
+      cache: true
     }),
     DatabaseModule,
     UserModule,
@@ -27,17 +30,18 @@ import { ClientProxy } from '@nestjs/microservices';
     CollectionModule,
     CoworkerRelationModule,
     WorkspaceRelationModule,
+    NestjsFormDataModule
   ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: ExceptionsLoggerFilter,
-    },
+    }
   ],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap {
   constructor(
-    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
+    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
   ) {}
 
   configure(consumer: MiddlewareConsumer) {
