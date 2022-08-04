@@ -31,7 +31,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10),
   username: process.env.DB_USER,
-  database: 'nestjs-project-prod',
+  database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/migrations/**/*.js'],

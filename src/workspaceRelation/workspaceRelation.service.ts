@@ -9,6 +9,7 @@ import { ICreateApprovedWorkspaceRelation } from './interface/createApprovedWork
 import { ICreateWorkspaceRelation } from './interface/createWorkspaceRelation.interface';
 import { IGetDataByWorkspaceShareCode } from './interface/getDataByWorkspaceShareCode.interface';
 import { WorkspaceRelation } from './workspaceRelation.entity';
+import { WorkspaceRelationRepository } from './workspaceRelation.repository';
 
 @Injectable()
 export class WorkspaceRelationService {
@@ -70,7 +71,7 @@ export class WorkspaceRelationService {
       throw new BadRequestException();
     }
     const workspaceRelationStatus =
-      await this.findOneRelationByIds(
+      await WorkspaceRelationRepository.findOneRelationByIds(
         requesterId,
         workspaceId,
       );
@@ -96,7 +97,7 @@ export class WorkspaceRelationService {
       status_code: RelationsStatusCode.Requested,
     };
     const coworkerRelation =
-      await this.findOneRelationOrFail(
+      await WorkspaceRelationRepository.findOneRelationOrFail(
         findConditions,
       );
     coworkerRelation.status_code = RelationsStatusCode.Accepted;
@@ -123,19 +124,5 @@ export class WorkspaceRelationService {
       status_code: statusCode,
     });
     return this.workspaceRelationRepository.save(workspaceRelation);
-  }
-
-  async findOneRelationByIds(requester_id: string, workspace_id: string) {
-    return this.workspaceRelationRepository.findOne({
-      where: [{ requester_id, workspace_id }],
-    });
-  }
-
-  async findOneRelationOrFail<T>(coworkerRelationConditions: T) {
-    const workspaceRelation = await this.workspaceRelationRepository.findOne(coworkerRelationConditions);
-    if (!workspaceRelation) {
-      throw new NotFoundException();
-    }
-    return workspaceRelation;
   }
 }

@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   Injectable,
 } from '@nestjs/common';
+import { UserRepository } from 'src/user/user.repository';
 import { UserService } from '../../user/user.service';
 import { LogInDto } from '../dto/logIn.dto';
 
@@ -17,7 +18,7 @@ export class AuthGuard implements CanActivate {
     if (!(email || enteredPwd)) {
       throw new BadRequestException();
     }
-    const user = await this.userService.getUserByEmail(email);
+    const user = await UserRepository.findUserByEmail(email);;
     const passwordsAreEqual = await this.userService.checkPassword(
       enteredPwd,
       user.password,

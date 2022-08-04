@@ -3,7 +3,7 @@ export const allSharedWorkspacesQuery = `
     w.title,
     w.owner_id,
     json_strip_nulls(COALESCE(json_agg(json_build_object('user_id', u.user_id, 'username', u.username)) FILTER (
-      WHERE wr.status_code = 'A'), '[]')
+      WHERE wr.status_code = 'A' AND NOT wr.addressee_id = $1), '[]')
     ) coworkers
   FROM workspaces w
   INNER JOIN workspace_relations wr USING(workspace_id)
@@ -12,6 +12,6 @@ export const allSharedWorkspacesQuery = `
     (SELECT w1.workspace_id
       FROM workspaces w1
       INNER JOIN workspace_relations wr1 ON wr1.workspace_id = w1.workspace_id
-      WHERE wr1.addressee_id = $1)
+      WHERE wr1.addressee_id = $1 AND wr1.status_code = 'A')
   GROUP BY w.workspace_id
 `

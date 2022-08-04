@@ -14,6 +14,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { WorkspaceRelationModule } from './workspaceRelation/workspaceRelation.module';
 import { ClientProxy } from '@nestjs/microservices';
 import { NestjsFormDataModule } from 'nestjs-form-data';
+import { TypeOrmModule } from './typeorm.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
       envFilePath: ['.env'],
       cache: true
     }),
+    TypeOrmModule,
     DatabaseModule,
     UserModule,
     AuthModule,
