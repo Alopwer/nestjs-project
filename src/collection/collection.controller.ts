@@ -34,7 +34,10 @@ export class CollectionController {
     @Param('id', ParseUUIDPipe) collectionId: string,
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
-    return this.collectionService.updateCollection(collectionId, updateCollectionDto);
+    return this.collectionService.updateCollection(
+      collectionId,
+      updateCollectionDto,
+    );
   }
 
   @Put(':id/details/:collectionDataId')
@@ -43,7 +46,10 @@ export class CollectionController {
     @Param('collectionDataId', ParseUUIDPipe) collectionDataId: string,
     @Body() updateCollectionDataDto: UpdateCollectionDataDto,
   ) {
-    return this.collectionService.updateCollectionData(collectionDataId, updateCollectionDataDto);
+    return this.collectionService.updateCollectionData(
+      collectionDataId,
+      updateCollectionDataDto,
+    );
   }
 
   @Delete(':id')

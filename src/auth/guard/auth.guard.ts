@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     if (!(email || enteredPwd)) {
       throw new BadRequestException();
     }
-    const user = await UserRepository.findUserByEmail(email);;
+    const user = await UserRepository.findUserByEmail(email);
     const passwordsAreEqual = await this.userService.checkPassword(
       enteredPwd,
       user.password,

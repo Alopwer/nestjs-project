@@ -13,15 +13,15 @@ import { CreateWorkspaceTransaction } from './transaction/createWorkspace.transa
 import { Workspace } from './workspace.entity';
 
 export type JsonBuildObject<T> = {
-  json_build_object: T
-}
+  json_build_object: T;
+};
 
 export type GetWorkspaceResponse = {
   workspaceId: string;
   title: string;
   ownerId: string;
   coworkers: User[];
-}
+};
 
 @Injectable()
 export class WorkspaceService {
@@ -31,22 +31,25 @@ export class WorkspaceService {
     @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
     private readonly createWorkspaceTransaction: CreateWorkspaceTransaction,
     @InjectRepository(WorkspaceRelation)
-    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>
+    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>,
   ) {}
 
   async getAllOwnerWorkspaces(ownerId: string): Promise<any> {
-    return this.workspaceRepository.query(allOwnerWorkspacesQuery, [ownerId])
+    return this.workspaceRepository.query(allOwnerWorkspacesQuery, [ownerId]);
   }
 
   async getAllSharedWorkspaces(userId: string): Promise<any> {
-    return this.workspaceRepository.query(allSharedWorkspacesQuery, [userId])
+    return this.workspaceRepository.query(allSharedWorkspacesQuery, [userId]);
   }
 
   async createWorkspace(
     ownerId: string,
     createWorkspaceDto: CreateWorkspaceDto,
   ): Promise<Workspace> {
-    return this.createWorkspaceTransaction.run({ ...createWorkspaceDto, ownerId });
+    return this.createWorkspaceTransaction.run({
+      ...createWorkspaceDto,
+      ownerId,
+    });
   }
 
   async updateWorkspace(
@@ -63,7 +66,9 @@ export class WorkspaceService {
   }
 
   async checkOwner(userId: string, workspaceId: string): Promise<boolean> {
-    const workspace = await this.workspaceRepository.findOneBy({ workspace_id: workspaceId });
+    const workspace = await this.workspaceRepository.findOneBy({
+      workspace_id: workspaceId,
+    });
     if (!workspace) {
       throw new NotFoundException();
     }

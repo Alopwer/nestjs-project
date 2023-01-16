@@ -1,8 +1,6 @@
 const toCamel = (s) => {
-  return s.replace(/([-_][a-z])/ig, ($1) => {
-    return $1.toUpperCase()
-      .replace('-', '')
-      .replace('_', '');
+  return s.replace(/([-_][a-z])/gi, ($1) => {
+    return $1.toUpperCase().replace('-', '').replace('_', '');
   });
 };
 
@@ -18,10 +16,9 @@ export const keysToCamel = function (o) {
   if (isObject(o)) {
     const n = {};
 
-    Object.keys(o)
-      .forEach((k) => {
-        n[toCamel(k)] = keysToCamel(o[k]);
-      });
+    Object.keys(o).forEach((k) => {
+      n[toCamel(k)] = keysToCamel(o[k]);
+    });
 
     return n;
   } else if (isArray(o)) {

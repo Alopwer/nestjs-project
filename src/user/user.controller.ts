@@ -7,8 +7,14 @@ import { UserRepository } from './user.repository';
 @UseGuards(JwtAuthGuard)
 export class UserController {
   @Get()
-  getUsersByUserName(@Req() { user }: RequestWithUser, @Query('username') username: string) {
-    return UserRepository.findUsersByUsernameWithoutRequester(username, user.user_id);
+  getUsersByUserName(
+    @Req() { user }: RequestWithUser,
+    @Query('username') username: string,
+  ) {
+    return UserRepository.findUsersByUsernameWithoutRequester(
+      username,
+      user.user_id,
+    );
   }
 
   @Get('/:id')

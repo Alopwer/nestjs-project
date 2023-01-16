@@ -12,11 +12,17 @@ export class CoworkerRelationService {
   constructor(
     private readonly sharedRelationService: SharedRelationService,
     @InjectRepository(CoworkerRelation)
-    private readonly coworkerRelationRepository: Repository<CoworkerRelation>
+    private readonly coworkerRelationRepository: Repository<CoworkerRelation>,
   ) {}
 
-  async getAllApprovedCoworkerRelations(requesterId: string, username?: string) {
-    const coworkerIds = await CoworkerRelationRepository.findApprovedRelationsByUserId(requesterId);
+  async getAllApprovedCoworkerRelations(
+    requesterId: string,
+    username?: string,
+  ) {
+    const coworkerIds =
+      await CoworkerRelationRepository.findApprovedRelationsByUserId(
+        requesterId,
+      );
     if (username) {
       return UserRepository.findUsersByIdsAndUsername(coworkerIds, username);
     }
@@ -71,18 +77,24 @@ export class CoworkerRelationService {
         requesterId,
         addresseeId,
       })
-      .orWhere(
-        'requester_id = :addresseeId AND addressee_id = :requesterId',
-        { requesterId, addresseeId },
-      )
+      .orWhere('requester_id = :addresseeId AND addressee_id = :requesterId', {
+        requesterId,
+        addresseeId,
+      })
       .execute();
   }
 
   async getAllUsersByRequestedConnections(userId: string, username?: string) {
-    return CoworkerRelationRepository.findAllUsersByRequestedConnections(userId, username);
+    return CoworkerRelationRepository.findAllUsersByRequestedConnections(
+      userId,
+      username,
+    );
   }
 
   async getAllUsersByReceivedConnections(userId: string, username?: string) {
-    return CoworkerRelationRepository.findAllUsersByReceivedConnections(userId, username);
+    return CoworkerRelationRepository.findAllUsersByReceivedConnections(
+      userId,
+      username,
+    );
   }
 }

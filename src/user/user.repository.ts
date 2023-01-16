@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
-import { AppDataSource } from "src/config/data-source";
-import { In, ILike, Not } from "typeorm";
-import { User } from "./user.entity";
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { AppDataSource } from 'src/config/data-source';
+import { In, ILike, Not } from 'typeorm';
+import { User } from './user.entity';
 
 export const UserRepository = AppDataSource.getRepository(User).extend({
   async findUserById(userId: string) {
@@ -28,9 +28,15 @@ export const UserRepository = AppDataSource.getRepository(User).extend({
     return this.findBy({ user_id: In(userIds) });
   },
   async findUsersByUsernameWithoutRequester(username: string, userId: string) {
-    return this.findBy({ username: ILike(`${username}%`), user_id: Not(userId) });
+    return this.findBy({
+      username: ILike(`${username}%`),
+      user_id: Not(userId),
+    });
   },
   async findUsersByIdsAndUsername(userIds: string[], username: string) {
-    return this.findBy({ user_id: In(userIds), username: ILike(`${username}%`) });
+    return this.findBy({
+      user_id: In(userIds),
+      username: ILike(`${username}%`),
+    });
   },
 });

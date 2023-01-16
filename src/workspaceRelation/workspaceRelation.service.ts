@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
@@ -17,17 +22,23 @@ export class WorkspaceRelationService {
     private readonly sharedRelationService: SharedRelationService,
     @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
     @InjectRepository(WorkspaceRelation)
-    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>
+    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>,
   ) {}
 
-  async getPendingWorkspaceRelationRequestsByUserId(
-    addresseeId: string,
-  ) {
-    return this.workspaceRelationRepository.createQueryBuilder('workspace_relations')
-      .select(["title", "owner_id", "w.workspace_id as workspace_id"])
-      .innerJoin("workspaces", "w", "w.workspace_id = workspace_relations.workspace_id")
-      .where("addressee_id = :addresseeId AND status_code = :statusCode", { addresseeId, statusCode: RelationsStatusCode.Requested })
-      .getRawMany<{ title: string, owner_id: string, workspace_id: string }>();
+  async getPendingWorkspaceRelationRequestsByUserId(addresseeId: string) {
+    return this.workspaceRelationRepository
+      .createQueryBuilder('workspace_relations')
+      .select(['title', 'owner_id', 'w.workspace_id as workspace_id'])
+      .innerJoin(
+        'workspaces',
+        'w',
+        'w.workspace_id = workspace_relations.workspace_id',
+      )
+      .where('addressee_id = :addresseeId AND status_code = :statusCode', {
+        addresseeId,
+        statusCode: RelationsStatusCode.Requested,
+      })
+      .getRawMany<{ title: string; owner_id: string; workspace_id: string }>();
   }
 
   async createApprovedWorkspaceRelation({
@@ -35,13 +46,18 @@ export class WorkspaceRelationService {
     workspaceShareCode,
   }: ICreateApprovedWorkspaceRelation) {
     const { requesterId, workspaceId } = await firstValueFrom(
-      this.linkClient.send<IGetDataByWorkspaceShareCode>(
-        'get_data_by_workspace_share_code',
-        { workspaceShareCode },
-      ).pipe(
-        //TODO: check why wrong error code???
-        catchError((err) => { throw new Error(err) }))
-      )
+      this.linkClient
+        .send<IGetDataByWorkspaceShareCode>(
+          'get_data_by_workspace_share_code',
+          { workspaceShareCode },
+        )
+        .pipe(
+          //TODO: check why wrong error code???
+          catchError((err) => {
+            throw new Error(err);
+          }),
+        ),
+    );
     if (requesterId === addresseeId) {
       throw new BadRequestException();
     }
@@ -49,8 +65,8 @@ export class WorkspaceRelationService {
       requester_id: requesterId,
       addressee_id: addresseeId,
       workspace_id: workspaceId,
-      status_code: RelationsStatusCode.Accepted
-    })
+      status_code: RelationsStatusCode.Accepted,
+    });
     if (workspaceRelation) {
       throw new BadRequestException('You are already in workspace');
     }
@@ -97,9 +113,7 @@ export class WorkspaceRelationService {
       status_code: RelationsStatusCode.Requested,
     };
     const coworkerRelation =
-      await WorkspaceRelationRepository.findOneRelationOrFail(
-        findConditions,
-      );
+      await WorkspaceRelationRepository.findOneRelationOrFail(findConditions);
     coworkerRelation.status_code = RelationsStatusCode.Accepted;
     return this.workspaceRelationRepository.save(coworkerRelation);
   }
@@ -107,8 +121,8 @@ export class WorkspaceRelationService {
   async deleteWorkspaceRelation(workspaceId: string, addresseeId: string) {
     return this.workspaceRelationRepository.delete({
       workspace_id: workspaceId,
-      addressee_id: addresseeId
-    })
+      addressee_id: addresseeId,
+    });
   }
 
   async saveRelation({

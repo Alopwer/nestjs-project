@@ -27,7 +27,7 @@ export class WorkspaceRelationController {
 
   @Get('/pending')
   async getPendingWorkspaceRelationRequestsByUserId(
-    @Req() { user }: RequestWithUser
+    @Req() { user }: RequestWithUser,
   ) {
     return this.workspaceRelationService.getPendingWorkspaceRelationRequestsByUserId(
       user.user_id,

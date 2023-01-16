@@ -10,4 +10,4 @@ export const allOwnerWorkspacesQuery = `
   LEFT JOIN public_files pf ON pf.public_file_id = w.cover_image_id
   WHERE w.owner_id = $1
   GROUP BY w.workspace_id, pf.url
-`
+`;

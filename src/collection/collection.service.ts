@@ -20,10 +20,12 @@ export class CollectionService {
     @InjectRepository(CollectionData)
     private readonly collectionDataRepository: Repository<CollectionData>,
     @InjectRepository(WorkspaceRelation)
-    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>
+    private readonly workspaceRelationRepository: Repository<WorkspaceRelation>,
   ) {}
 
-  async createCollection(createCollectionData: CreateCollectionData): Promise<Collection> {
+  async createCollection(
+    createCollectionData: CreateCollectionData,
+  ): Promise<Collection> {
     const collectionData = this.collectionDataRepository.create({
       description: createCollectionData.description,
     });
@@ -35,10 +37,13 @@ export class CollectionService {
     return newCollection;
   }
 
-  async updateCollection(collectionId: string, updateCollectionDto: UpdateCollectionDto) {
+  async updateCollection(
+    collectionId: string,
+    updateCollectionDto: UpdateCollectionDto,
+  ) {
     await this.collectionRepository.update(collectionId, updateCollectionDto);
     return this.collectionRepository.findOneBy({
-      collection_id: collectionId
+      collection_id: collectionId,
     });
   }
 
@@ -46,9 +51,12 @@ export class CollectionService {
     collectionDataId: string,
     updateCollectionDataDto: UpdateCollectionDataDto,
   ) {
-    await this.collectionDataRepository.update(collectionDataId, updateCollectionDataDto);
+    await this.collectionDataRepository.update(
+      collectionDataId,
+      updateCollectionDataDto,
+    );
     return this.collectionDataRepository.findOneBy({
-      collection_data_id: collectionDataId
+      collection_data_id: collectionDataId,
     });
   }
 
@@ -60,7 +68,7 @@ export class CollectionService {
   async checkOwner(userId: string, collectionId: string) {
     const collection = await this.collectionRepository.findOne({
       where: { collection_id: collectionId },
-      relations: ['workspace']
+      relations: ['workspace'],
     });
     return collection.workspace.owner_id === userId;
   }
@@ -68,7 +76,7 @@ export class CollectionService {
   async checkMember(userId: string, collectionId: string) {
     const collection = await this.collectionRepository.findOne({
       where: { collection_id: collectionId },
-      relations: ['workspace']
+      relations: ['workspace'],
     });
     const workspaceRelation = await this.workspaceRelationRepository
       .createQueryBuilder('workspace_relations')
@@ -82,7 +90,10 @@ export class CollectionService {
   }
 
   async getAllWorkspaceCollections(workspaceId: string): Promise<Collection[]> {
-    return this.collectionRepository.find({ where: { workspace_id: workspaceId }, relations: ['collection_data'] });
+    return this.collectionRepository.find({
+      where: { workspace_id: workspaceId },
+      relations: ['collection_data'],
+    });
   }
 
   async getAllCollectionsByOwner(ownerId: string): Promise<Collection[]> {

@@ -1,5 +1,11 @@
 import { CoworkerRelationModule } from './coworkerRelation/coworkerRelation.module';
-import { Inject, MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap } from '@nestjs/common';
+import {
+  Inject,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { AuthController } from './auth/auth.controller';
@@ -21,7 +27,7 @@ import { TypeOrmModule } from './typeorm.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      cache: true
+      cache: true,
     }),
     TypeOrmModule,
     DatabaseModule,
@@ -32,19 +38,19 @@ import { TypeOrmModule } from './typeorm.module';
     CollectionModule,
     CoworkerRelationModule,
     WorkspaceRelationModule,
-    NestjsFormDataModule
+    NestjsFormDataModule,
   ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: ExceptionsLoggerFilter,
-    }
+    },
   ],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap {
-  constructor(
-    @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy
-  ) {}
+  // constructor(
+  //   @Inject('LINK_SERVICE') private readonly linkClient: ClientProxy,
+  // ) {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes(AuthController);
@@ -52,9 +58,9 @@ export class AppModule implements NestModule, OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     try {
-      await this.linkClient.connect();
+      // await this.linkClient.connect();
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
   }
 }

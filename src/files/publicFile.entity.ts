@@ -1,6 +1,6 @@
-import { Exclude } from "class-transformer";
-import { Workspace } from "src/workspace/workspace.entity";
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Exclude } from 'class-transformer';
+import { Workspace } from 'src/workspace/workspace.entity';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('public_files')
 export class PublicFile {

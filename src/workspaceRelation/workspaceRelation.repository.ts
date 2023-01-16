@@ -1,12 +1,14 @@
-import { NotFoundException } from "@nestjs/common";
-import { AppDataSource } from "src/config/data-source";
-import { WorkspaceRelation } from "./workspaceRelation.entity";
+import { NotFoundException } from '@nestjs/common';
+import { AppDataSource } from 'src/config/data-source';
+import { WorkspaceRelation } from './workspaceRelation.entity';
 
-export const WorkspaceRelationRepository = AppDataSource.getRepository(WorkspaceRelation).extend({
+export const WorkspaceRelationRepository = AppDataSource.getRepository(
+  WorkspaceRelation,
+).extend({
   async findOneRelationByIds(requester_id: string, workspace_id: string) {
     return this.findOneBy({
       requester_id,
-      workspace_id
+      workspace_id,
     });
   },
   async findOneRelationOrFail<T>(coworkerRelationConditions: T) {
@@ -15,5 +17,5 @@ export const WorkspaceRelationRepository = AppDataSource.getRepository(Workspace
       throw new NotFoundException();
     }
     return workspaceRelation;
-  }
+  },
 });

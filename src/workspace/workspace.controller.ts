@@ -49,7 +49,9 @@ export class WorkspaceController {
 
   @Get(':id/collections')
   @UseGuards(WorkspaceMemberGuard)
-  async getAllWorkspaceCollections(@Param('id', ParseUUIDPipe) workspaceId: string) {
+  async getAllWorkspaceCollections(
+    @Param('id', ParseUUIDPipe) workspaceId: string,
+  ) {
     return this.collectionService.getAllWorkspaceCollections(workspaceId);
   }
 

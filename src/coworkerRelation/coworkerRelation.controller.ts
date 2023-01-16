@@ -19,33 +19,39 @@ import { CoworkerRelationService } from './coworkerRelation.service';
 @UseGuards(JwtAuthGuard)
 export class CoworkerRelationController {
   constructor(
-    private readonly coworkerRelationService: CoworkerRelationService
+    private readonly coworkerRelationService: CoworkerRelationService,
   ) {}
 
   @Get('requested')
   async getAllRequestedPendingCoworkerRelations(
     @Req() { user }: RequestWithUser,
-    @Query('username') username: string
+    @Query('username') username: string,
   ) {
-    return this.coworkerRelationService.getAllUsersByRequestedConnections(user.user_id, username)
+    return this.coworkerRelationService.getAllUsersByRequestedConnections(
+      user.user_id,
+      username,
+    );
   }
 
   @Get('received')
   async getAllReceivedPendingCoworkerRelations(
     @Req() { user }: RequestWithUser,
-    @Query('username') username: string
+    @Query('username') username: string,
   ) {
-    return this.coworkerRelationService.getAllUsersByReceivedConnections(user.user_id, username)
+    return this.coworkerRelationService.getAllUsersByReceivedConnections(
+      user.user_id,
+      username,
+    );
   }
 
   @Get('approved')
   async getAllApprovedCoworkerRelationsById(
     @Req() { user }: RequestWithUser,
-    @Query('username') username: string
+    @Query('username') username: string,
   ) {
     return this.coworkerRelationService.getAllApprovedCoworkerRelations(
       user.user_id,
-      username
+      username,
     );
   }
 

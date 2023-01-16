@@ -14,4 +14,4 @@ export const allSharedWorkspacesQuery = `
       INNER JOIN workspace_relations wr1 ON wr1.workspace_id = w1.workspace_id
       WHERE wr1.addressee_id = $1 AND wr1.status_code = 'A')
   GROUP BY w.workspace_id
-`
+`;

@@ -9,6 +9,8 @@ export class CollectionData {
   @Column()
   description: string;
 
-  @OneToOne(() => Collection, (collection) => collection.collection_id, { onDelete: 'CASCADE' })
+  @OneToOne(() => Collection, (collection) => collection.collection_id, {
+    onDelete: 'CASCADE',
+  })
   collection: Collection;
 }

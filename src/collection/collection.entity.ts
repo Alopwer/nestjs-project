@@ -32,7 +32,11 @@ export class Collection {
   @Exclude()
   collection_data_id: string;
 
-  @OneToOne(() => CollectionData, (collection_data) => collection_data.collection, { cascade: true })
+  @OneToOne(
+    () => CollectionData,
+    (collection_data) => collection_data.collection,
+    { cascade: true },
+  )
   @JoinColumn({ name: 'collection_data_id' })
   collection_data: CollectionData;
 }

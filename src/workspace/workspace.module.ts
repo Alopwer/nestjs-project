@@ -18,7 +18,7 @@ import { WorkspaceService } from './workspace.service';
     UserModule,
     CollectionModule,
     AuthModule,
-    NestjsFormDataModule
+    NestjsFormDataModule,
   ],
   controllers: [WorkspaceController],
   providers: [WorkspaceService, CreateWorkspaceTransaction, FileService],

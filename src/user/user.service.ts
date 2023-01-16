@@ -16,7 +16,7 @@ import { UserRepository } from './user.repository';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {

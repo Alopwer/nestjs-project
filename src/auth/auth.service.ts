@@ -20,17 +20,18 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly sharedService: SharedService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async register(registrationData: RegisterDto) {
     const hashedPassword = await this.sharedService.hashPassword(
       registrationData.password,
     );
-    return this.userService.createUser({
-      ...registrationData,
-      password: hashedPassword,
-    })
+    return this.userService
+      .createUser({
+        ...registrationData,
+        password: hashedPassword,
+      })
       .catch((_error) => {
         throw new HttpException(
           'Something went wrong',

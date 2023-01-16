@@ -3,20 +3,18 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export abstract class BaseTransaction<TransactionInput, TransactionOutput> {
-  protected constructor (
-    private readonly dataSource: DataSource,
-  ) {}
+  protected constructor(private readonly dataSource: DataSource) {}
 
-  protected abstract execute (
+  protected abstract execute(
     data: TransactionInput,
-    manager: EntityManager
+    manager: EntityManager,
   ): Promise<TransactionOutput>;
 
-  private async createRunner (): Promise<QueryRunner> {
+  private async createRunner(): Promise<QueryRunner> {
     return this.dataSource.createQueryRunner();
   }
 
-  async run (data: TransactionInput): Promise<TransactionOutput> {
+  async run(data: TransactionInput): Promise<TransactionOutput> {
     const queryRunner = await this.createRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -25,16 +23,16 @@ export abstract class BaseTransaction<TransactionInput, TransactionOutput> {
       const result = await this.execute(data, queryRunner.manager);
       await queryRunner.commitTransaction();
       return result;
-    } catch(error) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      console.log(error)
+      console.log(error);
       throw new Error('Transaction failed');
     } finally {
       await queryRunner.release();
     }
   }
 
-  async runWithinTransaction (
+  async runWithinTransaction(
     data: TransactionInput,
     manager: EntityManager,
   ): Promise<TransactionOutput> {

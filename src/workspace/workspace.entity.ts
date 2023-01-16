@@ -33,13 +33,13 @@ export class Workspace {
   collections: Collection[];
 
   @Column({
-    nullable: true
+    nullable: true,
   })
   @Exclude()
   cover_image_id: string;
 
   @OneToOne(() => PublicFile, {
-    nullable: true
+    nullable: true,
   })
   @JoinColumn({ name: 'cover_image_id' })
   cover_image?: PublicFile;
